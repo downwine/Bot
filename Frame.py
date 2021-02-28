@@ -11,8 +11,8 @@ session_api = vk_session.get_api()
 longpoll = VkLongPoll(vk_session)
 
 
-# Функция отправки сообщений
 def send_msg(user_id, message):
+    """Функция для отправки пользователю сообщения"""
     vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
 
@@ -24,6 +24,6 @@ for event in longpoll.listen():
         if event.to_me:  # Для бота
             print('New message:')
             print(f'For me by: {event.user_id}', end='\n')
-            bot = VkBot(event.user_id)
+            bot = VkBot(event.user_id) # Создаём объект бота
             send_msg(event.user_id, bot.new_message(event.text))
             print('Text: ', event.text)
