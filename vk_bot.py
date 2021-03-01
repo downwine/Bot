@@ -1,26 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
+import vk_api.vk_api
 
-
-def clean_all_tag_from_name(string_line):
-    """
-    Функция для очистки от тэгов и их содержимых
-    :param string_line: строка с именем пользователя
-    :return: строка без лишних тэгов, только имя
-    """
-    result = ""
-    not_skip = True
-    for i in list(string_line):
-        if not_skip:
-            if i == "<":
-                not_skip = False
-            else:
-                result += i
-        else:
-            if i == ">":
-                not_skip = True
-
-    return result
+# API-ключ
+token = "5e57c513cb3a1c9e62eedf59de73e62ec4bc4688d62c1b7508912a146370d929dbef3af9897246fe3c1d3"
+# Для Long Poll
+vk_session = vk_api.VkApi(token=token)
+# Для вызова методов vk_api
+session_api = vk_session.get_api()
 
 
 def set_url(website: str):
@@ -37,22 +24,36 @@ def set_url(website: str):
     return soup
 
 
+def send_msg(user_id, message):
+    """Функция для отправки пользователю сообщения"""
+    vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
+
+
 class VkBot:
     """Сам бот, содержащий весь функционал"""
 
+    user_id = None
+    USERNAME = None
+    url = None
+    COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START"]
+    city = None
+
     def __init__(self, user_id):
         """Конструктор"""
-        self.USER_ID = user_id
+        # Из предыдущего файла импортирую две переменные
+        self.user_id = user_id
         self.USERNAME = self.get_user_name_from_vk_id(user_id)
-        self.COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START"]
-        self.url = set_url("https://my-calend.ru/date-and-time-today")
+        self.city = self.get_user_city(user_id)
 
     @staticmethod
     def get_user_name_from_vk_id(user_id):
         """Получение имени пользователя с помощью идентификатора"""
-        soup = set_url("https://vk.com/id" + str(user_id))
-        user_name = clean_all_tag_from_name(soup.findAll("title")[0])
-        return user_name.split()[0]
+        return session_api.users.get(user_id=user_id)[0]['first_name']
+
+    @staticmethod
+    def get_user_city(user_id):
+        """ Получаем город пользователя"""
+        return session_api.users.get(user_id=user_id, fields="home_town")[0]['home_town']
 
     @staticmethod
     def get_time(soup):
@@ -99,7 +100,7 @@ class VkBot:
         """
         # Привет
         if message.upper() in self.COMMANDS[0]:
-            return f"Привет-привет, {self.USERNAME}!"
+            return f"Привет-привет, {self.USERNAME} из города {self.city}!"
 
         # Дата
         elif message.upper() == self.COMMANDS[1]:
