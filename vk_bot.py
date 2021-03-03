@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import vk_api.vk_api
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 # API-ключ
 token = "5e57c513cb3a1c9e62eedf59de73e62ec4bc4688d62c1b7508912a146370d929dbef3af9897246fe3c1d3"
@@ -24,18 +25,13 @@ def set_url(website: str):
     return soup
 
 
-def send_msg(user_id, message):
-    """Функция для отправки пользователю сообщения"""
-    vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
-
-
 class VkBot:
     """Сам бот, содержащий весь функционал"""
 
     user_id = None
     USERNAME = None
     url = None
-    COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START"]
+    COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START", "УСТАЛ"]
     city = None
 
     def __init__(self, user_id):
@@ -43,7 +39,27 @@ class VkBot:
         # Из предыдущего файла импортирую две переменные
         self.user_id = user_id
         self.USERNAME = self.get_user_name_from_vk_id(user_id)
-        self.city = self.get_user_city(user_id)
+        try:
+            self.city = " " + self.get_user_city(user_id)
+        except KeyError:
+            self.city = ", который не указан"
+
+    @staticmethod
+    def create_keyboard():
+        keyboard = VkKeyboard(one_time=True)
+        keyboard.add_button('Привет', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_button('Клаватура', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_location_button()
+        return keyboard.get_keyboard()
+
+    @staticmethod
+    def send_msg(self, user_id, message):
+        """Функция для отправки пользователю сообщения"""
+        vk_session.method('messages.send', {'user_id': user_id,
+                                            'message': message,
+                                            'keyboard': self.create_keyboard(),
+                                            'random_id': 0})
 
     @staticmethod
     def get_user_name_from_vk_id(user_id):
@@ -53,7 +69,7 @@ class VkBot:
     @staticmethod
     def get_user_city(user_id):
         """ Получаем город пользователя"""
-        return session_api.users.get(user_id=user_id, fields="home_town")[0]['home_town']
+        return session_api.users.get(user_id=user_id, fields="city")[0]['city']['title']
 
     @staticmethod
     def get_time(soup):
@@ -100,7 +116,7 @@ class VkBot:
         """
         # Привет
         if message.upper() in self.COMMANDS[0]:
-            return f"Привет-привет, {self.USERNAME} из города {self.city}!"
+            return f"Привет-привет, {self.USERNAME} из города{self.city}!"
 
         # Дата
         elif message.upper() == self.COMMANDS[1]:
@@ -117,7 +133,13 @@ class VkBot:
         # Начало
         elif message.upper() == self.COMMANDS[4] or message.upper() == self.COMMANDS[5]:
             return f"Введите ваши реальные имя и фамилию"
-            # проверка с базой данных и создание
+            # проверка с базой данных и регистрация
+
+        elif message.upper() == self.COMMANDS[6]:
+            vk_session.method('messages.send', {'user_id': self.user_id,
+                                                'attachment': "photo-202823499_457239018",
+                                                'random_id': 0})
+            return f"Отдохни, бро"
 
         else:
             return "Не понимаю о чем вы..."
