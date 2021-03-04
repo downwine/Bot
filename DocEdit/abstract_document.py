@@ -5,7 +5,8 @@ from docxtpl import RichText
 class AbstractDocument:
     def __init__(self):
         if __name__ == "__main__":
-            self.template_path = 'test_path'
+            print(__name__)
+            self.template_path = 'relocation_sample.docx'
             self.document = DocxTemplate(self.template_path)
         else:
             self.template_path = None
@@ -15,36 +16,41 @@ class AbstractDocument:
         """
             Multiple render and file saver
             :param document_context_kwargs - dict of {{ vars }} and their values
-            :return:
+            :return: self
         """
 
         # self.document = DocxTemplate(self.template_path)  # reading document with __init__ path param
         self.document.render(document_context_kwargs)
         # self.document.save(path_to_save_file)
 
-        return self
+        # return self
 
     def write_rich(self, text_variable, text_content, render_italic=False,
-                   render_bold=False, render_color='#000000', render_size=14, render_strike=False):
+                   render_underlined=False, render_bold=False, render_color='#000000',
+                   render_size=24, render_strike=False, render_font='Times New Roman', underline=False):
         """
             Rich text render
+            :param underline:
+            :param render_font:
             :param text_variable:
             :param text_content
+            :param render_underlined:
             :param render_bold: False
             :param render_italic: False
             :param render_strike: False
             :param render_color: '#000000'
             :param render_size: 14
-            :return:
+            :return: self
         """
 
-        rich_text = RichText(text_content, italic=render_italic, bold=render_bold,
-                             strike=render_strike, color=render_color, size=render_size)
+        rich_text = RichText(text_content, italic=render_italic,
+                             bold=render_bold, strike=render_strike,
+                             color=render_color, size=render_size, font=render_font, underline=underline)
 
-        document_context_kwargs = {text_variable, text_content}
-        self.document.render(document_context_kwargs)
+        context = {text_variable: rich_text}
+        self.document.render(context)
 
-        return self
+        # return self
 
     def save(self, path_to_save_file='DefaultTest.docx'):
         """
@@ -54,3 +60,10 @@ class AbstractDocument:
         """
 
         self.document.save(path_to_save_file)
+
+
+if __name__ == '__main__':
+    print('abstract_document.py')
+    ad = AbstractDocument()
+    ad.write_rich(text_variable='full_name', text_content='Полукаров Иван Сергеевич', underline=True)
+    ad.save()
