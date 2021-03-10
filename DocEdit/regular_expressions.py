@@ -12,7 +12,7 @@ def mobile_valid_check(phone_number):
     letters = re.compile(r'[^0-9-+() ]')
 
     if letters.search(phone_number):
-        print(letters.search(phone_number))
+        # print(letters.search(phone_number))
         return False
 
     phone_number = phone_number.replace(' ', '')
@@ -23,11 +23,3 @@ def mobile_valid_check(phone_number):
     return True if pattern.search(phone_number) else False
 
 
-if __name__ == '__main__':
-    print(mobile_valid_check('+7 925 -914 65 44'))
-    print(mobile_valid_check('40 925 -914 65 44'))
-    print(mobile_valid_check('+8 (925) -914 65 44'))
-    print(mobile_valid_check(' 925 -914 65 44'))
-    print(mobile_valid_check('+7 925 -914 65 '))
-    print(mobile_valid_check('925 -914f 65 44'))
-    print(mobile_valid_check('925 -914? 65 44'))
