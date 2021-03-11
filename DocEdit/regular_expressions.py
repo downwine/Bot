@@ -12,7 +12,6 @@ def mobile_valid_check(phone_number):
     letters = re.compile(r'[^0-9-+() ]')
 
     if letters.search(phone_number):
-        # print(letters.search(phone_number))
         return False
 
     phone_number = phone_number.replace(' ', '')
@@ -39,7 +38,7 @@ def reformat_mobile(phone_number):
     phone_number = phone_number.replace('(', '')
     phone_number = phone_number.replace('+', '')
 
-    print(phone_number)
+    return phone_number
 
 
 def full_name_check(full_name):
@@ -56,6 +55,7 @@ def full_name_check(full_name):
 
     if pattern.search(full_name):
         return False
+
     return len(full_name.split(' ')) >= 2
 
 
