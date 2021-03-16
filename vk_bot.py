@@ -5,6 +5,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkLongPoll, VkEventType
 import time
 import re
+from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 
 # API-ключ
 token = "5e57c513cb3a1c9e62eedf59de73e62ec4bc4688d62c1b7508912a146370d929dbef3af9897246fe3c1d3"
@@ -13,27 +14,6 @@ vk_session = vk_api.VkApi(token=token)
 # Для вызова методов vk_api
 session_api = vk_session.get_api()
 longpoll = VkLongPoll(vk_session)
-
-
-def mobile_valid_check(phone_number):
-    """
-    valid phone check
-    :param: phone_number: phone_number
-    :return: bool: is number valid
-    """
-
-    pattern = re.compile(r'(^[+0-9]{1,3})*([0-9]{10,11}$)')
-    letters = re.compile(r'[^0-9-+() ]')
-
-    if letters.search(phone_number):
-        return False
-
-    phone_number = phone_number.replace(' ', '')
-    phone_number = phone_number.replace('-', '')
-    phone_number = phone_number.replace(')', '')
-    phone_number = phone_number.replace('(', '')
-
-    return True if pattern.search(phone_number) else False
 
 
 def set_url(website: str):
@@ -58,7 +38,8 @@ class VkBot:
     USERNAME = None
     url = None
     COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START", "УСТАЛ", "ОТПРАВИТЬ ЗАЯВЛЕНИЕ", "ОТПРАВИТЬ ЧЕК",
-                "ЗАЯВЛЕНИЕ НА ВНОС", "ЗАЯВЛЕНИЕ НА ОТЪЕЗД", "ЗАЯВЛЕНИЕ НА ГОСТЯ", "ЗАЯВЛЕНИЕ НА ПЕРЕСЕЛЕНИЕ"]
+                "ЗАЯВЛЕНИЕ НА ВНОС", "ЗАЯВЛЕНИЕ НА ОТЪЕЗД", "ЗАЯВЛЕНИЕ НА ГОСТЯ", "ЗАЯВЛЕНИЕ НА ПЕРЕСЕЛЕНИЕ",
+                "СПИСОК КОММПАНД", "КОГДА Я ДЕЖУРЮ"]
     city = None
 
     def __init__(self, user_id):
@@ -77,6 +58,8 @@ class VkBot:
         keyboard = VkKeyboard(one_time=True)
         keyboard.add_button('Отправить заявление', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button('Отправить чек', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button("Список команд", color=VkKeyboardColor.SECONDARY)
 
         return keyboard.get_keyboard()
 
@@ -141,22 +124,28 @@ class VkBot:
             for event in longpoll.listen():
                 if event.type == VkEventType.MESSAGE_NEW:
                     if event.to_me:
+                        temp = event.text
                         if i == 0:
-                            if len(event.text.split(" ")) < 2:
-                                send_msg_without_keyboard(self.user_id, "ФИО введены некорректно, повторите ввод")
+                            temp = full_name_processing(event.text)
+                            if temp is None:
+                                send_msg_without_keyboard(self.user_id,
+                                                          "ФИО введены некорректно, повторите ввод")
                                 continue
                         if i == 1:
-                            if 201 > int(event.text) or int(event.text) > 918:
+                            if not event.text.isdigit() or 201 > int(event.text) or int(event.text) > 918:
                                 send_msg_without_keyboard(self.user_id,
                                                           "Номер комнаты введён некорректно, повторите ввод")
                                 continue
                         if i == 2:
-                            if not mobile_valid_check(event.text):
+                            temp = reformat_mobile(event.text)
+                            if temp is None:
                                 send_msg_without_keyboard(self.user_id,
                                                           "Номер телефона введён некорректно, повторите ввод")
                                 continue
+                            else:
+                                temp = reformat_mobile(event.text)
 
-                        answers.append(event.text)
+                        answers.append(temp)
                         break
 
         if doc_id == 0:
@@ -173,18 +162,19 @@ class VkBot:
                     if event.type == VkEventType.MESSAGE_NEW and event.user_id == self.user_id:
                         if event.to_me:
                             if i == 0:
-                                if len(event.text) != 8:
+                                if (re.search(pattern=r'[^0-9\.]', string=event.text) is not None) \
+                                        or len(event.text) != 8:
                                     send_msg_without_keyboard(self.user_id,
                                                               "Дата введена некорректно, повторите ввод")
                                     continue
                             if i == 1:
-                                if event.text.upper() != "ВНОС" or event.text.upper() != "ВЫНОС":
+                                if event.text.upper() != "ВНОС" and event.text.upper() != "ВЫНОС":
                                     send_msg_without_keyboard(self.user_id,
                                                               "Ввод некорректен, повторите ввод")
                                     continue
                             if i == 3 or i == 2:
-                                string = event.text.split(", ")
-                                answers.append(string)
+                                neighbours = event.text.split(", ")
+                                answers.append(neighbours)
                             else:
                                 answers.append(event.text)
                             break
@@ -204,7 +194,8 @@ class VkBot:
                     if event.type == VkEventType.MESSAGE_NEW and event.user_id == self.user_id:
                         if event.to_me:
                             if i == 0 or i == 1:
-                                if len(event.text) != 8:
+                                if (re.search(pattern=r'[^0-9\.]', string=event.text) is not None)\
+                                        or len(event.text) != 8:
                                     send_msg_without_keyboard(self.user_id,
                                                               "Дата введена некорректно, повторите ввод")
                                     continue
@@ -228,18 +219,20 @@ class VkBot:
                 for event in longpoll.listen():
                     if event.type == VkEventType.MESSAGE_NEW and event.user_id == self.user_id:
                         if event.to_me:
+                            temp = event.text
                             if i == 0:
-                                if len(event.text.split(" ")) < 2:
-                                    send_msg_without_keyboard(self.user_id,
-                                                              "ФИО введены некорректно, повторите ввод")
+                                temp = full_name_processing(event.text)
+                                if temp is None:
+                                    send_msg_without_keyboard(self.user_id, "ФИО введены некорректно, повторите ввод")
                                     continue
                             if i == 1:
-                                if 201 > int(event.text) or int(event.text) > 918:
+                                if not event.text.isdigit() or 201 > int(event.text) or int(event.text) > 918:
                                     send_msg_without_keyboard(self.user_id,
                                                               "Номер комнаты введён некорректно, повторите ввод")
                                     continue
                             if i == 2:
-                                if len(event.text) != 8:
+                                if (re.search(pattern=r'[^0-9\.]', string=event.text) is not None) \
+                                        or len(event.text) != 8:
                                     send_msg_without_keyboard(self.user_id,
                                                               "Дата введена некорректно, повторите ввод")
                                     continue
@@ -252,7 +245,7 @@ class VkBot:
                                 string = event.text.split(", ")
                                 answers.append(string)
                             else:
-                                answers.append(event.text)
+                                answers.append(temp)
                             break
 
             return self.get_current_date(self, mess, dict_keys, answers)
@@ -273,7 +266,7 @@ class VkBot:
                     if event.type == VkEventType.MESSAGE_NEW and event.user_id == self.user_id:
                         if event.to_me:
                             if i == 0 or i == 1:
-                                if 201 > int(event.text) or int(event.text) > 1000:
+                                if not event.text.isdigit() or 201 > int(event.text) or int(event.text) > 918:
                                     send_msg_without_keyboard(self.user_id,
                                                               "Номер комнаты введён некорректно, повторите ввод")
                                     continue
@@ -350,8 +343,10 @@ class VkBot:
         :param message: Входящее сообщение пользователя
         :return: Сообщение от бота
         """
+
         # Привет
-        if message.upper() in self.COMMANDS[0]:
+        if message.upper() in self.COMMANDS[0] or message.upper() == self.COMMANDS[4] \
+                or message.upper() == self.COMMANDS[5]:
             self.send_msg_with_keyboard(self, user_id,
                                         f"Привет-привет, {self.USERNAME} из города{self.city}!"
                                         f" Если я не отвечаю тебе сразу, то не расстраивайся и повтори своё сообщение "
@@ -370,11 +365,6 @@ class VkBot:
         # Пока
         elif message.upper() == self.COMMANDS[3]:
             send_msg_without_keyboard(user_id, f"Пока-пока, {self.USERNAME}!")
-
-        # Начало
-        elif message.upper() == self.COMMANDS[4] or message.upper() == self.COMMANDS[5]:
-            send_msg_without_keyboard(user_id, "Введите ваши реальные имя и фамилию")
-            # проверка с базой данных и регистрация
 
         # Устал
         elif message.upper() == self.COMMANDS[6]:
@@ -412,8 +402,19 @@ class VkBot:
             a = self.create_dictionary(self, 3)
             print(a)
 
+        # Список команд
+        elif message.upper() == self.COMMANDS[13]:
+            send_msg_without_keyboard(user_id, "Список возможных команд: \n"
+                                               "Отправить заявление\n"
+                                               "Отправить чек\n"
+                                               "Когда я дежурю")
+
+        # Когда я дежурю
+        elif message.upper() == self.COMMANDS[14]:
+            print()
+
         else:
-            send_msg_without_keyboard(user_id, "Не понимаю о чем вы...")
+            send_msg_without_keyboard(user_id, "Не понимаю, о чем вы...")
 
 
 def send_msg_without_keyboard(user_id, message):
