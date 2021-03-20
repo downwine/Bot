@@ -92,7 +92,7 @@ class VkBot:
                                             'random_id': 0})
 
     @staticmethod
-    def get_current_date(self, mess, dict_keys, answers):
+    def fill_current_date(self, mess, dict_keys, answers):
         send_msg_without_keyboard(self.user_id, mess[3])
         for event in longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.user_id == self.user_id:
@@ -179,7 +179,7 @@ class VkBot:
                                 answers.append(event.text)
                             break
 
-            return self.get_current_date(self, mess, dict_keys, answers)
+            return self.fill_current_date(self, mess, dict_keys, answers)
 
         elif doc_id == 1:
             fields = ["Введите период, начиная с которого Вы будете отсутствовать, в формате дд.мм.гг",
@@ -202,7 +202,7 @@ class VkBot:
                             answers.append(event.text)
                             break
 
-            return self.get_current_date(self, mess, dict_keys, answers)
+            return self.fill_current_date(self, mess, dict_keys, answers)
 
         elif doc_id == 2:
             fields = ["Введите ФИО гостя, которого приглашаете",
@@ -248,7 +248,7 @@ class VkBot:
                                 answers.append(temp)
                             break
 
-            return self.get_current_date(self, mess, dict_keys, answers)
+            return self.fill_current_date(self, mess, dict_keys, answers)
 
         elif doc_id == 3:
             fields = ["Введите комнату, в которую хотите переселиться",
@@ -286,7 +286,7 @@ class VkBot:
                                 answers.append(event.text)
                             break
 
-            return self.get_current_date(self, mess, dict_keys, answers)
+            return self.fill_current_date(self, mess, dict_keys, answers)
 
     @staticmethod
     def get_user_name_from_vk_id(user_id):
