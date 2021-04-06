@@ -10,7 +10,7 @@ class VkBot:
     USERNAME = None
     COMMANDS = ["ПРИВЕТ", "НАЧАТЬ", "START", "ПОКА", "УСТАЛ", "ОТПРАВИТЬ ЗАЯВЛЕНИЕ", "ОТПРАВИТЬ ЧЕК",
                 "НА ВНОС", "НА ОТЪЕЗД", "НА ГОСТЯ", "НА ПЕРЕСЕЛЕНИЕ",
-                "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ"]
+                "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ", "ДОБАВИТЬ", "УДАЛИТЬ"]
     city = None
 
     def __init__(self, user_id):
@@ -131,6 +131,16 @@ class VkBot:
         # Когда я дежурю
         elif message.upper() == self.COMMANDS[12]:
             print()
+
+        # Добавить человека в таблицу
+        elif message.upper() == self.COMMANDS[13]:
+            if self.user_id == 157833436:
+                print()
+
+        # Удалить человека из таблицы
+        elif message.upper() == self.COMMANDS[14]:
+            if self.user_id == 157833436:
+                print()
 
         else:
             send_msg_without_keyboard(user_id, "Не понимаю, о чем вы...")
