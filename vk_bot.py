@@ -1,28 +1,6 @@
-import requests
-from bs4 import BeautifulSoup
-import vk_api.vk_api
+from filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, fill_guest_document, \
+    fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, send_msg_with_keyboard
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-
-# API-ключ
-token = "5e57c513cb3a1c9e62eedf59de73e62ec4bc4688d62c1b7508912a146370d929dbef3af9897246fe3c1d3"
-# Для Long Poll
-vk_session = vk_api.VkApi(token=token)
-# Для вызова методов vk_api
-session_api = vk_session.get_api()
-
-
-def set_url(website: str):
-    """
-    Задание вэб-страницы для объекта бота
-    :param website: url сайта в интернете
-    :return: html код сайта
-    """
-    # Посылаем запрос на страницу
-    page = requests.get(website)
-    # print(page.status_code) 200 - удачное подключение
-    # Скармливаем bs4 страницу, в переменной soup весь html-код
-    soup = BeautifulSoup(page.text, "html.parser")
-    return soup
 
 
 class VkBot:
@@ -30,8 +8,9 @@ class VkBot:
 
     user_id = None
     USERNAME = None
-    url = None
-    COMMANDS = ["ПРИВЕТ", "ДАТА", "ВРЕМЯ", "ПОКА", "НАЧАТЬ", "START", "УСТАЛ"]
+    COMMANDS = ["ПРИВЕТ", "НАЧАТЬ", "START", "ПОКА", "УСТАЛ", "ОТПРАВИТЬ ЗАЯВЛЕНИЕ", "ОТПРАВИТЬ ЧЕК",
+                "НА ВНОС", "НА ОТЪЕЗД", "НА ГОСТЯ", "НА ПЕРЕСЕЛЕНИЕ",
+                "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ"]
     city = None
 
     def __init__(self, user_id):
@@ -45,20 +24,23 @@ class VkBot:
             self.city = ", который не указан"
 
     @staticmethod
-    def create_keyboard():
-        keyboard = VkKeyboard(one_time=True)
-        keyboard.add_button('Привет', color=VkKeyboardColor.NEGATIVE)
-        keyboard.add_button('Клаватура', color=VkKeyboardColor.POSITIVE)
+    def create_docs_keyboard():
+        """Создание клавиатуры с выбором документов"""
+        keyboard = VkKeyboard(inline=True)
+        keyboard.add_button('На внос', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_button('На отъезд', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()
-        keyboard.add_location_button()
+        keyboard.add_button('На гостя', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_button('На переселение', color=VkKeyboardColor.PRIMARY)
+
         return keyboard.get_keyboard()
 
     @staticmethod
-    def send_msg(self, user_id, message):
-        """Функция для отправки пользователю сообщения"""
+    def send_types_of_docs(self, user_id):
+        """Сообщение с клавиатурой документов"""
         vk_session.method('messages.send', {'user_id': user_id,
-                                            'message': message,
-                                            'keyboard': self.create_keyboard(),
+                                            'message': "Выберите тип заявления:",
+                                            'keyboard': self.create_docs_keyboard(),
                                             'random_id': 0})
 
     @staticmethod
@@ -71,75 +53,84 @@ class VkBot:
         """ Получаем город пользователя"""
         return session_api.users.get(user_id=user_id, fields="city")[0]['city']['title']
 
-    @staticmethod
-    def get_time(soup):
-        """
-        Получение текущего времени
-        :param soup: html код страницы
-        :return: текущее время, строка
-        """
-        # Записываем в строку тот тэг, который нам нужен
-        time = soup.find('h2')
-        # text - текст тэга
-        result = ""
-        text = time.text
-        # Отделяем время от даты
-        if "Время" in text:
-            j = text.find("Время")
-            for i in range(len(text)):
-                if i == j:
-                    result += text[j]
-                    j += 1
-        return result
-
-    @staticmethod
-    def get_date(soup):
-        """
-        Получение текущей даты
-        :param soup: html код страницы
-        :return: текущая дата, строка
-        """
-        date = soup.find('h2')
-        result = ""
-        text = date.text
-        if "Время" in text:
-            j = text.find("Время")
-            for i in range(j):
-                result += text[i]
-        return result
-
-    def new_message(self, message):
+    def new_message(self, message, user_id):
         """
         Генерация нового сообщения для отправки
+        :param user_id: Идентификатор пользователя
         :param message: Входящее сообщение пользователя
         :return: Сообщение от бота
         """
-        # Привет
-        if message.upper() in self.COMMANDS[0]:
-            return f"Привет-привет, {self.USERNAME} из города{self.city}!"
 
-        # Дата
-        elif message.upper() == self.COMMANDS[1]:
-            return self.get_date(set_url("https://my-calend.ru/date-and-time-today"))
-
-        # Время
-        elif message.upper() == self.COMMANDS[2]:
-            return self.get_time(set_url("https://my-calend.ru/date-and-time-today"))
+        # Привет или Начать или Start
+        if message.upper() in self.COMMANDS[0] or message.upper() == self.COMMANDS[1] \
+                or message.upper() == self.COMMANDS[2]:
+            send_msg_with_keyboard(user_id,
+                                   f"Привет-привет, {self.USERNAME} из города{self.city}!"
+                                   f" Если я не отвечаю тебе сразу, то не расстраивайся и повтори своё сообщение "
+                                   f"через пару минут")
 
         # Пока
         elif message.upper() == self.COMMANDS[3]:
-            return f"Пока-пока, {self.USERNAME}!"
+            send_msg_without_keyboard(user_id, f"Пока-пока, {self.USERNAME}!")
 
-        # Начало
-        elif message.upper() == self.COMMANDS[4] or message.upper() == self.COMMANDS[5]:
-            return f"Введите ваши реальные имя и фамилию"
-            # проверка с базой данных и регистрация
-
-        elif message.upper() == self.COMMANDS[6]:
-            vk_session.method('messages.send', {'user_id': self.user_id,
-                                                'attachment': "photo-202823499_457239018",
+        # Устал
+        elif message.upper() == self.COMMANDS[4]:
+            vk_session.method('messages.send', {'user_id': user_id,
+                                                'attachment': "https://sun9-63.userapi.com/impf/4qBJys6hFxf01_"
+                                                              "fbcYhaRifkynsOK7J81Y4e3Q/A70V_KPPhEA.jpg?size=1920x1274&"
+                                                              "quality=96&sign=f493a2a44d93bd9f274f53d110422e10&type=album",
                                                 'random_id': 0})
-            return f"Отдохни, бро"
+
+        # Отправить заявление
+        elif message.upper() == self.COMMANDS[5]:
+            self.send_types_of_docs(self, user_id)
+
+        # Отправить чек
+        elif message.upper() == self.COMMANDS[6]:
+            print()
+
+        # Заявление на внос
+        elif message.upper() == self.COMMANDS[7]:
+            d = fill_transfer_document(self, create_dictionary(self))
+            print(d)
+            if d is not None:
+                if len(d) > 3:
+                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+
+        # Заявление на отъезд
+        elif message.upper() == self.COMMANDS[8]:
+            d = fill_absence_document(self, create_dictionary(self))
+            print(d)
+            if d is not None:
+                if len(d) > 3:
+                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+
+        # Заявление на гостя
+        elif message.upper() == self.COMMANDS[9]:
+            d = fill_guest_document(self, create_dictionary(self))
+            print(d)
+            if d is not None:
+                if len(d) > 3:
+                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+
+        # Заявление на переселение
+        elif message.upper() == self.COMMANDS[10]:
+            d = fill_relocation_document(self, create_dictionary(self))
+            print(d)
+            if d is not None:
+                if len(d) > 3:
+                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+
+        # Список команд
+        elif message.upper() == self.COMMANDS[11]:
+            send_msg_without_keyboard(user_id, "Список возможных команд: \n"
+                                               "Отправить заявление\n"
+                                               "Отправить чек\n"
+                                               "Когда я дежурю")
+
+        # Когда я дежурю
+        elif message.upper() == self.COMMANDS[12]:
+            print()
 
         else:
-            return "Не понимаю о чем вы..."
+            send_msg_without_keyboard(user_id, "Не понимаю, о чем вы...")
