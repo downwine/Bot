@@ -5,6 +5,7 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from Duty_Hours import search_id
 
 # Для Long Poll
 vk_session = vk_api.VkApi(token=token)
@@ -79,6 +80,8 @@ def create_dictionary(self):
     answers = []
     mess = ["Введите номер комнаты, в которой проживаете",
             "Введите контактный телефон"]
+    user_fio = search_id(self.user_id)
+    answers.append(user_fio)
 
     for i in range(2):
         send_msg_without_keyboard(self.user_id, mess[i])

@@ -63,33 +63,51 @@ def search_name(search_text):
         return b
 
 
-def duty_hours_today():
+def duty_hours_today(flags):
     import datetime
     import openpyxl
 
     current_datetime = datetime.datetime.now()
-    b = []
-    for i in 2, 3, 4, 5, 6, 7, 9:
-        path_to_file = f'График дежурств {i} этаж.xlsx'
-        try:
-            wb = openpyxl.load_workbook(path_to_file)  # Грузим наш график
-        except:
-            print(f'График дежурств {i} этаж.xlsx отсутствует')
-            continue
-        sheet_active = wb.active  # Начинаем работать с файлом
-        search_text = sheet_active.cell(row=current_datetime.day + 3, column=1).value
+    if current_datetime.hour == 2:
+        b = []
+        for i in 2, 3, 4, 5, 6, 7, 9:
+            path_to_file = f'График дежурств {i} этаж.xlsx'
+            try:
+                wb = openpyxl.load_workbook(path_to_file)  # Грузим наш график
+            except:
+                print(f'График дежурств {i} этаж.xlsx отсутствует')
+                continue
+            sheet_active = wb.active  # Начинаем работать с файлом
+            search_text = sheet_active.cell(row=current_datetime.day + 3, column=1).value
 
-        path_to_file = 'Список проживающих.xlsx'
-        wb = openpyxl.load_workbook(path_to_file)  # Грузим наш список
-        sheet_active = wb.active  # Начинаем работать с файлом
-        row_max = sheet_active.max_row  # Получаем количество строк
-        word_cell = search_in_table(row_max, search_text, sheet_active, 1)
-        # print(word_cell)
-        if not word_cell:
-            b.append(None)
-        else:
-            b.append(sheet_active.cell(row=int(word_cell[0][1:]), column=2).value)
-    return b
+            path_to_file = 'Список проживающих.xlsx'
+            wb = openpyxl.load_workbook(path_to_file)  # Грузим наш список
+            sheet_active = wb.active  # Начинаем работать с файлом
+            row_max = sheet_active.max_row  # Получаем количество строк
+            word_cell = search_in_table(row_max, search_text, sheet_active, 1)
+            # print(word_cell)
+            if not word_cell:
+                b.append(None)
+            else:
+                b.append(sheet_active.cell(row=int(word_cell[0][1:]), column=2).value)
+
+        notify_cleaners(b, flags)
+
+
+def notify_cleaners(id_of_cleaners, flags):
+    import vk_api
+    from our_token import token
+    from filling_docs import send_msg_without_keyboard
+
+    i = 0
+    vk_session = vk_api.VkApi(token=token)
+    for idd in id_of_cleaners:
+        if vk_session.method("messages.isMessagesFromGroupAllowed",
+                             {"group_id": 202823499, "user_id": idd})["is_allowed"]:
+            if not flags[i]:
+                send_msg_without_keyboard(idd, "Ты сегодня дежурный! Не забудь прибраться ;)")
+                flags[i] = True
+                i += 1
 
 
 # print(duty_hours_today())
