@@ -1,4 +1,12 @@
 def search_in_table(row_max, search_text, sheet_active, column):
+    """
+    Функция для поиска данных в указанном столбце
+    :param row_max:
+    :param search_text:
+    :param sheet_active:
+    :param column:
+    :return:
+    """
     from openpyxl.utils import get_column_letter
     import re
     row_min = 1  # Переменная, отвечающая за номер строки
