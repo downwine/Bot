@@ -47,6 +47,43 @@ class VkBot:
                                             'random_id': 0})
 
     @staticmethod
+    def create_commands_keyboard(self):
+        """Создание клавиатуры с доступными командами"""
+        keyboard = VkKeyboard(inline=True)
+        if not (self.user_id == 157833436):
+            keyboard.add_button('Отправить заявление', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Отправить чек', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Когда я дежурю?', color=VkKeyboardColor.PRIMARY)
+        else:
+            keyboard.add_button('Добавить проживающего', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Удалить проживающего', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+
+        if self.user_id == 192062697 or self.user_id == 278002891:
+            keyboard.add_line()
+            keyboard.add_button('Добавить проживающего', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Удалить проживающего', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Узнать ФИО по id', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_button('Узнать id по ФИО', color=VkKeyboardColor.PRIMARY)
+        elif self.user_id == 157833436:
+            keyboard.add_button('Узнать ФИО по id', color=VkKeyboardColor.SECONDARY)
+            keyboard.add_button('Узнать id по ФИО', color=VkKeyboardColor.SECONDARY)
+
+        return keyboard.get_keyboard()
+
+    @staticmethod
+    def send_possible_commands(self, user_id):
+        vk_session.method('messages.send', {'user_id': user_id,
+                                            'message': "Доступные команды:",
+                                            'keyboard': self.create_commands_keyboard(self),
+                                            'random_id': 0})
+
+    @staticmethod
     def get_user_name_from_vk_id(user_id):
         """Получение имени пользователя с помощью идентификатора"""
         return session_api.users.get(user_id=user_id)[0]['first_name']
@@ -98,7 +135,7 @@ class VkBot:
             print(d)
             if d is not None:
                 if len(d) > 3:
-                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+                    send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
 
         # Заявление на отъезд
         elif message.upper() == self.COMMANDS[8]:
@@ -106,7 +143,7 @@ class VkBot:
             print(d)
             if d is not None:
                 if len(d) > 3:
-                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+                    send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
 
         # Заявление на гостя
         elif message.upper() == self.COMMANDS[9]:
@@ -114,7 +151,7 @@ class VkBot:
             print(d)
             if d is not None:
                 if len(d) > 3:
-                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+                    send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
 
         # Заявление на переселение
         elif message.upper() == self.COMMANDS[10]:
@@ -122,78 +159,59 @@ class VkBot:
             print(d)
             if d is not None:
                 if len(d) > 3:
-                    send_msg_with_keyboard(self.user_id, "Спасибо за заполнение заявления!")
+                    send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
 
         # Список команд
         elif message.upper() == self.COMMANDS[11]:
-            if self.user_id == 157833436:
-                send_msg_without_keyboard(user_id, "Список возможных команд: \n"
-                                                   "Добавить проживаюшего\n"
-                                                   "Удалить проживаюшего\n"
-                                                   "Узнать ФИО по id\n"
-                                                   "Узнать id по ФИО")
-            elif self.user_id == 192062697 or self.user_id == 278002891:
-                send_msg_without_keyboard(user_id, "Список возможных команд: \n"
-                                                   "Отправить заявление\n"
-                                                   "Отправить чек\n"
-                                                   "Когда я дежурю\n"
-                                                   "Добавить проживаюшего\n"
-                                                   "Удалить проживаюшего\n"
-                                                   "Узнать ФИО по id\n"
-                                                   "Узнать id по ФИО")
-            else:
-                send_msg_without_keyboard(user_id, "Список возможных команд: \n"
-                                                   "Отправить заявление\n"
-                                                   "Отправить чек\n"
-                                                   "Когда я дежурю")
+            self.send_possible_commands(self, user_id)
 
         # Когда я дежурю
         elif message.upper() == self.COMMANDS[12]:
-            days = duty_hours_when(self.user_id)
+            days = duty_hours_when(user_id)
             text = days[0]
             for i in range(len(days) - 1):
                 text = f'{text}, {str(days[i + 1])}'
-            send_msg_with_keyboard(self.user_id, f'Вы дежурите {text} {present_month()}')
+            send_msg_with_keyboard(user_id, f'Вы дежурите {text} {present_month()}')
 
         # Добавить человека в таблицу
         elif message.upper() == self.COMMANDS[13]:
-            if self.user_id == 157833436 or self.user_id == 192062697 or self.user_id == 278002891:
-                send_msg_with_keyboard(self.user_id, f'Введите ФИО проживающего')
+            if user_id == 157833436 or user_id == 192062697 or user_id == 278002891:
+                send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
                 fio = taking_str(self)
-                send_msg_with_keyboard(self.user_id, f'Введите id проживающего')
+                send_msg_with_keyboard(user_id, 'Введите id проживающего')
                 id_for_adding = taking_str(self)
                 add_row(fio, id_for_adding)
-                send_msg_with_keyboard(self.user_id, f'Вы добавили в список проживающих {fio},'
-                                                     f' id которого {id_for_adding}')
+                send_msg_with_keyboard(user_id, f'Вы добавили в список проживающих {fio},'
+                                                f' id которого {id_for_adding}')
 
         # Удалить человека из таблицы
         elif message.upper() == self.COMMANDS[14]:
-            if self.user_id == 157833436 or self.user_id == 192062697 or self.user_id == 278002891:
-                send_msg_with_keyboard(self.user_id, f'Введите ФИО проживающего')
+            if user_id == 157833436 or user_id == 192062697 or user_id == 278002891:
+                send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
                 fio = taking_str(self)
                 delete_row(fio)
-                send_msg_with_keyboard(self.user_id, f'Вы удалили {fio} из списка проживающих')
+                send_msg_with_keyboard(user_id, f'Вы удалили {fio} из списка проживающих')
 
         # Узнать ФИО человека по его id
         elif message.upper() == self.COMMANDS[15]:
-            if self.user_id == 157833436 or self.user_id == 192062697 or self.user_id == 278002891:
-                send_msg_with_keyboard(self.user_id, f'Введите id проживающего')
+            if user_id == 192062697 or user_id == 278002891:
+                send_msg_with_keyboard(user_id, 'Введите id проживающего')
                 id_for_searching = taking_str(self)
                 fio = search_id(id_for_searching)
                 if fio is None:
-                    send_msg_with_keyboard(self.user_id, f'id: {id_for_searching} не найдено в списке проживающих')
+                    send_msg_with_keyboard(user_id, f'id: {id_for_searching} не найдено в списке проживающих')
                 else:
-                    send_msg_with_keyboard(self.user_id, f'По id: {id_for_searching} в списке проживающих найден(а) {fio}')
+                    send_msg_with_keyboard(user_id, f'По id: {id_for_searching} в списке проживающих найден(а) {fio}')
 
         # Узнать id человека по его ФИО
         elif message.upper() == self.COMMANDS[16]:
-            send_msg_with_keyboard(self.user_id, f'Введите ФИО проживающего')
+            send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
             fio = taking_str(self)
             id_for_searching = search_name(fio)
             if id_for_searching is None:
-                send_msg_with_keyboard(self.user_id, f'id: {fio} не найден в списке проживающих')
+                send_msg_with_keyboard(user_id, f'id: {fio} не найден в списке проживающих')
             else:
-                send_msg_with_keyboard(self.user_id, f'{fio} имеет id {id_for_searching}')
+                send_msg_with_keyboard(user_id, f'{fio} имеет id {id_for_searching}')
 
         else:
             send_msg_without_keyboard(user_id, "Не понимаю, о чем вы...")

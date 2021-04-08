@@ -20,7 +20,8 @@ def create_default_keyboard():
     keyboard.add_button('Отправить заявление', color=VkKeyboardColor.PRIMARY)
     keyboard.add_button('Отправить чек', color=VkKeyboardColor.PRIMARY)
     keyboard.add_line()
-    keyboard.add_button("Список команд", color=VkKeyboardColor.SECONDARY)
+    keyboard.add_button('Когда я дежурю?', color=VkKeyboardColor.PRIMARY)
+    keyboard.add_button('Список команд', color=VkKeyboardColor.SECONDARY)
 
     return keyboard.get_keyboard()
 
