@@ -9,7 +9,7 @@ class GuestDocument(AbstractDocument):
                            "day_of_visit", "time_from", "current_date", "time_to", "neighbors"]
 
         super().__init__(path_to_sample, path_to_save)
-
+        self.__docname__ = 'НаПроходГостя'
 
 if __name__ == '__main__':
     test_dict = {

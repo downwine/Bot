@@ -7,7 +7,7 @@ class AbsenceDocument(AbstractDocument):
         # list of variables in file
         self.attributes = ["full_name", "room_number", "phone_number", "period_from", "period_to",
                            "reason", 'current_date']
-
+        self.__docname__ = 'НаВременноеОтсутствие'
         super().__init__(path_to_sample, path_to_save)
 
 
@@ -22,3 +22,4 @@ if __name__ == '__main__':
 
     document = AbsenceDocument()
     document.write_usual(test_dict)
+    document.send_gmail()

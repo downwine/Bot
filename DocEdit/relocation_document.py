@@ -8,6 +8,7 @@ class RelocationDocument(AbstractDocument):
         self.attributes = ["full_name", "room_number", "phone_number", "room_to", "room_from",
                            "reason", "academ_debt", "reprimands", "neighbors"]
 
+        self.__docname__ = 'НаПереселение'
         super().__init__(path_to_sample, path_to_save)
 
     def preprocess_dict(self, document_context_kwargs):
@@ -33,3 +34,4 @@ if __name__ == '__main__':
 
     document = RelocationDocument()
     document.write_usual(test_dict)
+    document.send_gmail(address='polukarov.i@sch2009.net', body_msg='Прив КДЧД')

@@ -8,6 +8,7 @@ class TransferDocument(AbstractDocument):
         self.attributes = ["full_name", "room_number", "phone_number", "date_of_moving", "in_or_out",
                            "list_of_items", "neighbors", 'current_date']
 
+        self.__docname__ = 'НаПроносВещей'
         super().__init__(path_to_sample, path_to_save)
 
     def preprocess_dict(self, document_context_kwargs):
@@ -27,3 +28,4 @@ if __name__ == "__main__":
 
     document = TransferDocument()
     document.write_usual(test_dict)
+    document.send_gmail(address='polukarov.i@sch2009.net', body_msg='Прив КДЧД')

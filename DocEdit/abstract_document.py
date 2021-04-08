@@ -1,6 +1,9 @@
 from docxtpl import DocxTemplate
 from docxtpl import RichText
+import datetime
 import os
+
+from Gmail.GmailSender import GmailSender
 
 
 class AbstractDocument:
@@ -11,18 +14,20 @@ class AbstractDocument:
 
         self.path_to_sample = path_to_sample
         self.path_to_save = path_to_save
-
+        self.last_file_path = None
         self.document = DocxTemplate(self.path_to_sample)  # reading document with __init__ path param
 
-    @classmethod
-    def __name__(cls):
-        return cls.__name__
+        if self.__docname__ is None:
+            self.__docname__ = 'Abstract'
+
+    def __name__(self):
+        return self.__docname__
 
     def write_usual(self, document_context_kwargs):
         """
             Multiple render and file saver
             :param document_context_kwargs - dict of {{ vars }} and their values
-            :return: self
+            :return: self.last_file_path - storing path ro the last file
         """
         # checking validity
         self.check(document_context_kwargs)
@@ -36,9 +41,12 @@ class AbstractDocument:
         # rendering document
         self.document.render(document_context_kwargs)
 
-        self.save(self.preprocess_path_to_save(full_name, date))
+        # storing last_file_path
+        self.last_file_path = self.preprocess_path_to_save(full_name)
+        # saves file to the last_path
+        self.save()
 
-        return self
+        return self.last_file_path
 
     def preprocess_dict(self, document_context_kwargs):
         """
@@ -79,14 +87,14 @@ class AbstractDocument:
 
         # return self
 
-    def save(self, path_to_save_file):
+    def save(self):
         """
             Multiple render and file saver
-            :param path_to_save_file: Default: DefaultTest.docx - path to file
             :return:
         """
 
-        self.document.save(path_to_save_file)
+        self.document.save(self.last_file_path)
+        return self.last_file_path
 
     def check(self, document_context_kwargs):
         """
@@ -125,19 +133,29 @@ class AbstractDocument:
     def preprocess_yes_no(y_n):
         return "Имеются" if y_n.strip().lower() == "да" else 'Отсутствуют'
 
-    def preprocess_path_to_save(self, full_name, date):
+    def preprocess_path_to_save(self, full_name):
         """
         adds full_name.docx to self.path_to_save
         :param: Full Name
         :return: full name -> path_to_save/ApplicationType_Full_Name.docx
         """
-        date = '-'.join(date.split('.'))
+        date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+
         full_name = '_'.join(full_name.split())
         application_type = self.__name__()
 
         file_path = application_type + "_" + date + "_" + full_name + '.docx'
 
         return os.path.join(self.path_to_save, file_path)
+
+    def send_gmail(self, address, body_msg=''):
+        """sends emails to the specified address
+        :param body_msg: message with document
+        :param address: recipient's address"""
+
+        gs = GmailSender()
+        gs.send_gmail(recipient=address, body=body_msg,
+                      file_path=self.last_file_path)
 
 
 if __name__ == '__main__':
