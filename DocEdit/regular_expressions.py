@@ -55,6 +55,7 @@ def full_name_check(full_name):
 
     if pattern.search(full_name):
         return False
+
     return len(full_name.split(' ')) >= 2
 
 
