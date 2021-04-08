@@ -29,7 +29,7 @@ if __name__ == '__main__':
         "academ_debt": "ДА",
         "reprimands": "НЕТ",
         "current_date": "15.10.2021",
-        "neighbors": "Кто То СОтчеством, КтоТоБез Отчества"
+        "neighbors": "Кто То СОтч1еством, КтоТоБез Отчества"
     }
 
     document = RelocationDocument()
