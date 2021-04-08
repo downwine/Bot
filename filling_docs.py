@@ -378,3 +378,29 @@ def fill_relocation_document(self, answers):
             return None
 
     return self.fill_current_date(self, dict_keys, answers)
+
+
+def taking_str(self):
+    """
+    Функция для получения строки от пользователя
+    :param self: объект бота
+    :return: полученный текст
+    """
+    text = None
+    parsed = False
+    j = 0
+    delay = 3
+    for j in range(10):
+        for event in longpoll.check():
+            if event.type == VkEventType.MESSAGE_NEW:
+                if event.to_me:
+                    text = event.text
+                    parsed = True
+        time.sleep(delay)
+        if parsed:
+            break
+    if j == 9:
+        send_msg_with_keyboard(self.user_id,
+                               "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
+        return None
+    return text
