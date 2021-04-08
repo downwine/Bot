@@ -165,7 +165,7 @@ def fill_transfer_document(self, answers):
         return None
 
     fields = ["Введите дату, когда хотите внести/вынести вещи, в формате дд.мм.гг",
-              "Заявление на внос или на вынос?",
+              "Заявление (ВНОС/ВЫНОС)?",
               "Перечислите через запятую вещи, которые хотите внести/вынести",
               "Введите через запятую соседей, с которыми согласован внос/вынос"]
     dict_keys = ["full_name", "room_number", "phone_number", "date_of_moving", "in_or_out",
@@ -184,19 +184,14 @@ def fill_transfer_document(self, answers):
                             if not check_date(self, event.text):
                                 break
                         if i == 1:
-                            if event.text.upper() != "НА ВНОС" and event.text.upper() != "НА ВЫНОС":
+                            if event.text.upper() != "ВНОС" and event.text.upper() != "ВЫНОС":
                                 send_msg_without_keyboard(self.user_id,
                                                           "Ввод некорректен, повторите ввод")
                                 break
-                        if i == 2 or i == 3:
-                            neighbours = event.text.split(", ")
-                            answers.append(neighbours)
-                            parsed = True
-                            break
-                        else:
-                            answers.append(event.text)
-                            parsed = True
-                            break
+
+                        answers.append(event.text)
+                        parsed = True
+                        break
             if parsed:
                 break
             time.sleep(delay)
@@ -296,15 +291,10 @@ def fill_guest_document(self, answers):
                                 send_msg_without_keyboard(self.user_id,
                                                           "Время введено некорректно, повторите ввод")
                                 break
-                        if i == 5:
-                            string = event.text.split(", ")
-                            answers.append(string)
-                            parsed = True
-                            break
-                        else:
-                            answers.append(temp)
-                            parsed = True
-                            break
+
+                        answers.append(temp)
+                        parsed = True
+                        break
             if parsed:
                 break
             time.sleep(delay)
@@ -347,28 +337,17 @@ def fill_relocation_document(self, answers):
                         if i == 0 or i == 1:
                             if not check_room_number(self, event.text):
                                 break
-                            else:
-                                answers.append(event.text)
-                                parsed = True
-                                break
+
                         if i == 3 or i == 4:
-                            if event.text.upper() == "ДА":
-                                answers.append(True)
-                                parsed = True
-                                break
-                            elif event.text.upper() == "НЕТ":
-                                answers.append(False)
-                                parsed = True
-                                break
-                            else:
+                            if (event.text.upper() != "ДА") and (event.text.upper() != "НЕТ"):
+
                                 send_msg_without_keyboard(self.user_id,
                                                           "Ввод некорректен, повторите ввод")
                                 break
-                        if i == 5:
-                            string = event.text.split(", ")
-                            answers.append(string)
-                            parsed = True
-                            break
+
+                        answers.append(event.text)
+                        parsed = True
+                        break
             if parsed:
                 break
             time.sleep(delay)
@@ -378,7 +357,7 @@ def fill_relocation_document(self, answers):
                                    "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
             return None
 
-    return self.fill_current_date(self, dict_keys, answers)
+    return fill_current_date(self, dict_keys, answers)
 
 
 def taking_str(self):

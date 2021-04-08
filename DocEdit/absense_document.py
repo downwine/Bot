@@ -3,7 +3,7 @@ import os
 
 
 class AbsenceDocument(AbstractDocument):
-    def __init__(self, path_to_sample='DocSample/abscence_sample.docx', path_to_save='DocBase'):
+    def __init__(self, path_to_sample='DocEdit/DocSample/abscence_sample.docx', path_to_save='DocEdit/DocBase'):
         # list of variables in file
         self.attributes = ["full_name", "room_number", "phone_number", "period_from", "period_to",
                            "reason", 'current_date']

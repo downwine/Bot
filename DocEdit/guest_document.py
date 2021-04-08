@@ -3,13 +3,14 @@ import os
 
 
 class GuestDocument(AbstractDocument):
-    def __init__(self, path_to_sample='DocSample/guest_sample.docx', path_to_save='DocBase'):
+    def __init__(self, path_to_sample='DocEdit/DocSample/guest_sample.docx', path_to_save='DocEdit/DocBase'):
         # list of variables in file
         self.attributes = ["full_name", "room_number", "phone_number", "guest_name", "invitation_room",
                            "day_of_visit", "time_from", "current_date", "time_to", "neighbors"]
 
-        super().__init__(path_to_sample, path_to_save)
         self.__docname__ = 'НаПроходГостя'
+        super().__init__(path_to_sample, path_to_save)
+
 
 if __name__ == '__main__':
     test_dict = {

@@ -3,7 +3,7 @@ import os
 
 
 class TransferDocument(AbstractDocument):
-    def __init__(self, path_to_sample='DocSample/transfer_sample.docx', path_to_save='DocBase'):
+    def __init__(self, path_to_sample='DocEdit/DocSample/transfer_sample.docx', path_to_save='DocEdit/DocBase'):
         # list of variables in file
         self.attributes = ["full_name", "room_number", "phone_number", "date_of_moving", "in_or_out",
                            "list_of_items", "neighbors", 'current_date']

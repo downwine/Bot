@@ -1,8 +1,14 @@
+from DocEdit.absense_document import AbsenceDocument
+from DocEdit.guest_document import GuestDocument
+from DocEdit.relocation_document import RelocationDocument
+from DocEdit.transfer_document import TransferDocument
 from filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, fill_guest_document, \
     fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, send_msg_with_keyboard, taking_str
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from Duty_Hours import duty_hours_when, add_row, present_month, delete_row, add_row, search_name, search_id
-import datetime
+from Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
+
+GMAIL_PATH = 'down.wine@yandex.ru'
+TEST_BODY_MSG = 'Test message'
 
 
 class VkBot:
@@ -132,34 +138,46 @@ class VkBot:
         # Заявление на внос
         elif message.upper() == self.COMMANDS[7]:
             d = fill_transfer_document(self, create_dictionary(self))
-            print(d)
+
             if d is not None:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
+                    document = TransferDocument()
+                    document.write_usual(d)
+                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на отъезд
         elif message.upper() == self.COMMANDS[8]:
             d = fill_absence_document(self, create_dictionary(self))
-            print(d)
+
             if d is not None:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
+                    document = AbsenceDocument()
+                    document.write_usual(d)
+                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на гостя
         elif message.upper() == self.COMMANDS[9]:
             d = fill_guest_document(self, create_dictionary(self))
-            print(d)
+
             if d is not None:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
+                    document = GuestDocument()
+                    document.write_usual(d)
+                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на переселение
         elif message.upper() == self.COMMANDS[10]:
             d = fill_relocation_document(self, create_dictionary(self))
-            print(d)
+
             if d is not None:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
+                    document = RelocationDocument()
+                    document.write_usual(d)
+                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Список команд
         elif message.upper() == self.COMMANDS[11]:
@@ -214,4 +232,4 @@ class VkBot:
                 send_msg_with_keyboard(user_id, f'{fio} имеет id {id_for_searching}')
 
         else:
-            send_msg_without_keyboard(user_id, "Не понимаю, о чем вы...")
+            send_msg_with_keyboard(user_id, "Не понимаю, о чем вы...")
