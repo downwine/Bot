@@ -119,6 +119,28 @@ def create_dictionary(self):
     return answers
 
 
+def send_cheque(user_id):
+    parsed = False
+    j = 0
+    delay = 3
+    for j in range(10):
+        for event in longpoll.check():
+            if event.type == VkEventType.MESSAGE_NEW:
+                if event.to_me:
+                    a = event.text
+                    parsed = True
+                    send_msg_without_keyboard(user_id, a)
+
+        time.sleep(delay)
+        if parsed:
+            break
+
+    if j == 9:
+        send_msg_with_keyboard(user_id,
+                               "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
+        return None
+
+
 def fill_current_date(self, dict_keys, answers):
     """
     Функция для довавления даты заполнения заявления и завершения формирования словаря

@@ -2,8 +2,9 @@ from DocEdit.absense_document import AbsenceDocument
 from DocEdit.guest_document import GuestDocument
 from DocEdit.relocation_document import RelocationDocument
 from DocEdit.transfer_document import TransferDocument
-from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, fill_guest_document, \
-    fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, send_msg_with_keyboard, taking_str
+from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, \
+    fill_guest_document, fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, \
+    send_msg_with_keyboard, taking_str, send_cheque
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Duty.Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
 
@@ -133,7 +134,7 @@ class VkBot:
 
         # Отправить чек
         elif message.upper() == self.COMMANDS[6]:
-            print()
+            send_cheque(user_id)
 
         # Заявление на внос
         elif message.upper() == self.COMMANDS[7]:
