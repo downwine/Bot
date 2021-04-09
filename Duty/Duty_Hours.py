@@ -86,7 +86,7 @@ def duty_hours_today(flags):
     import openpyxl
 
     current_datetime = datetime.datetime.now()
-    if current_datetime.hour == 12 and current_datetime.minute == 0:  # Условие отправки сообщения 12:00
+    if current_datetime.hour == 12 and current_datetime.minute == 00:  # Условие отправки сообщения 12:00
         ids_of_cleaners = []
         for i in 2, 3, 4, 5, 6, 7, 9:
             path_to_file = f'График дежурств {i} этаж.xlsx'
@@ -120,7 +120,7 @@ def notify_cleaners(ids_of_cleaners, flags):
     """
     import vk_api
     from our_token import token
-    from filling_docs import send_msg_without_keyboard
+    from Send_receive_mechanism.filling_docs import send_msg_without_keyboard
 
     i = 0
     vk_session = vk_api.VkApi(token=token)

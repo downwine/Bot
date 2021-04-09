@@ -5,7 +5,7 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from Duty_Hours import search_id
+from Duty.Duty_Hours import search_id
 
 # Для Long Poll
 vk_session = vk_api.VkApi(token=token)
@@ -165,7 +165,7 @@ def fill_transfer_document(self, answers):
         return None
 
     fields = ["Введите дату, когда хотите внести/вынести вещи, в формате дд.мм.гг",
-              "Заявление (ВНОС/ВЫНОС)?",
+              "Вы желаете осуществить внос или вынос?",
               "Перечислите через запятую вещи, которые хотите внести/вынести",
               "Введите через запятую соседей, с которыми согласован внос/вынос"]
     dict_keys = ["full_name", "room_number", "phone_number", "date_of_moving", "in_or_out",

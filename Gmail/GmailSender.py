@@ -1,4 +1,4 @@
-import email, smtplib, ssl
+import smtplib
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -45,11 +45,6 @@ class GmailSender:
         encoders.encode_base64(part)
 
         part.add_header('Content-Disposition', 'attachment', filename=file_name)
-        #     add_header(
-        #     "Content-Disposition",
-        #     f"attachment; filename= {file_path.split('/')[-1]}",
-        #     encoding='utf-8',
-        # )
         encoders.encode_base64(part)
 
         print(file_name)
@@ -58,9 +53,3 @@ class GmailSender:
         text = message.as_string()
 
         self.send_message(recipient, message=text)
-
-
-gs = GmailSender()
-gs.send_gmail('polukarov.i@sch2009.net',
-              body='Body',
-              file_path='C:/Users/vanis/PycharmProjects/Bot/DocEdit/DocBase/НаПереселение_2021-04-08_18-18_Полукаров_Иван_Cергеевич.docx')

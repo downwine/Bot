@@ -2,10 +2,10 @@ from DocEdit.absense_document import AbsenceDocument
 from DocEdit.guest_document import GuestDocument
 from DocEdit.relocation_document import RelocationDocument
 from DocEdit.transfer_document import TransferDocument
-from filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, fill_guest_document, \
+from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, fill_guest_document, \
     fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, send_msg_with_keyboard, taking_str
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
+from Duty.Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
 
 GMAIL_PATH = 'down.wine@yandex.ru'
 TEST_BODY_MSG = 'Test message'

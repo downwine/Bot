@@ -1,7 +1,7 @@
 from vk_api.longpoll import VkEventType
-from vk_bot import VkBot
-from filling_docs import longpoll, send_msg_without_keyboard
-from Duty_Hours import duty_hours_today, search_id
+from Send_receive_mechanism.vk_bot import VkBot
+from Send_receive_mechanism.filling_docs import longpoll, send_msg_without_keyboard
+from Duty.Duty_Hours import duty_hours_today, search_id
 
 # Основной цикл
 print("Server started")
