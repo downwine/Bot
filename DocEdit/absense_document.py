@@ -22,4 +22,4 @@ if __name__ == '__main__':
 
     document = AbsenceDocument()
     document.write_usual(test_dict)
-    document.send_gmail()
+    document.send_document()

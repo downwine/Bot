@@ -34,4 +34,4 @@ if __name__ == '__main__':
 
     document = RelocationDocument()
     document.write_usual(test_dict)
-    document.send_gmail(address='polukarov.i@sch2009.net', body_msg='Прив КДЧД')
+    document.send_documnet(address='polukarov.i@sch2009.net', body_msg='Прив КДЧД')
