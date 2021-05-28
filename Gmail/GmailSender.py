@@ -76,7 +76,7 @@ class GmailSender:
         self.send_message(recipient, message=text)
 
 
-if __name__ == '__main__':
-    gs = GmailSender()
-    gs.send_photo(recipient='down.wine@yandex.ru',
-                  file_path='C:/Users/vanis/PycharmProjects/Bot/DocEdit/DocSample/some_cat.jpg')
+#if __name__ == '__main__':
+    #gs = GmailSender()
+    #gs.send_photo(recipient='down.wine@yandex.ru',
+                  #file_path='C:/Users/asus/PycharmProjects/Bot/DocEdit/DocSample/some_cat.jpg')

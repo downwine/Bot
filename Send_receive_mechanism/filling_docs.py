@@ -1,7 +1,10 @@
 import time
 import re
+import requests
 import vk_api
 import datetime
+import pathlib
+from pathlib import Path
 from vk_api.longpoll import VkEventType, VkLongPoll
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token
@@ -147,16 +150,35 @@ def create_dictionary(self):
 
 
 def send_cheque(user_id):
+    send_msg_without_keyboard(user_id, "Я жду чек!")
     parsed = False
     j = 0
     delay = 3
+    url = "https://sun9-39.userapi.com/impg/36ThQlxot2OoX2jNNPXPxCG_n8hL4so1blwXLQ/2We5qH6TIGg.jpg?size=1080x1247&quality=96&sign=35e82b77373c7342b6d8ce9631af9829&type=album"
     for j in range(10):
         for event in longpoll.check():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
-                    a = event.text
+                    try:
+                        mesg_info = vk_session.method("messages.getById", {
+                            "message_ids": [event.message_id],
+                            "group_id": 202823499
+                        })
+                        photo = mesg_info["items"][0]["attachments"][0]["photo"]
+                        print("photo = ", photo)
+                        cheque = "photo{}_{}_{}".format(photo["owner_id"], photo["id"], photo["access_key"])
+                        index = len(photo["sizes"])
+                        print("index = ", index)
+                        url = photo["sizes"][index-1]["url"]
+
+                    except:
+                        cheque = None
+
                     parsed = True
-                    send_msg_without_keyboard(user_id, a)
+                    vk_session.method('messages.send', {'user_id': 278002891,
+                                                        'message': "Чек от ....",
+                                                        'attachment': cheque,
+                                                        'random_id': 0})
 
         time.sleep(delay)
         if parsed:
@@ -166,6 +188,21 @@ def send_cheque(user_id):
         send_msg_with_keyboard(user_id,
                                "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
         return None
+
+    ph = requests.get(url)
+    dir_path = pathlib.Path.cwd()
+    print(dir_path)
+    k = "name.jpg"
+    # path_to_file = str(Path(dir_path, "Cheques", k))
+    # print(path_to_file)
+    # for i in range(len(path_to_file)):
+    #     if path_to_file[i] != "\\":
+    #         continue
+    #     path_to_file = path_to_file[:i] + "/" + path_to_file[i+1:]
+    # print(path_to_file)
+    out = open("cheque.jpg", "wb")
+    out.write(ph.content)
+    out.close()
 
 
 def fill_current_date(self, dict_keys, answers):

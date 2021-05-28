@@ -35,7 +35,7 @@ def search_in_table(row_max, searching_element, sheet_active, column):
     return found_texts
 
 
-def search_id(searching_id, fl):
+def search_id(searching_id):
     """
     Функция для поиска id в таблице
     :param searching_id: id, который необходимо найти
@@ -45,10 +45,7 @@ def search_id(searching_id, fl):
     import pathlib
     from pathlib import Path
     dir_path = pathlib.Path.cwd()
-    if fl is True:
-        path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
-    else:
-        path_to_file = 'Список проживающих.xlsx'
+    path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
     our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
     sheet_active = our_table.active  # Начинаем работать с файлом
     row_max = sheet_active.max_row  # Получаем количество строк
@@ -71,8 +68,11 @@ def search_name(searching_name):
     :return: id, соответствующее данному ФИО
     """
     import openpyxl
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
+    path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
 
-    path_to_file = 'Список проживающих.xlsx'
     our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
     sheet_active = our_table.active  # Начинаем работать с файлом
     row_max = sheet_active.max_row  # Получаем количество строк
@@ -89,12 +89,15 @@ def duty_hours_today(flags):
     """    Функция, уведомляющая проживающих, что они дежурят сегодня    """
     import datetime
     import openpyxl
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
 
     current_datetime = datetime.datetime.now()
-    if current_datetime.hour == 12 and current_datetime.minute == 00:  # Условие отправки сообщения 12:00
+    if current_datetime.hour == 13 and current_datetime.minute == 35:  # Условие отправки сообщения 12:00
         ids_of_cleaners = []
         for i in 2, 3, 4, 5, 6, 7, 9:
-            path_to_file = f'График дежурств {i} этаж.xlsx'
+            path_to_file = Path(dir_path, "Duty", f'График дежурств {i} этаж.xlsx')
             try:
                 our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш график
             except:
@@ -103,7 +106,7 @@ def duty_hours_today(flags):
             sheet_active = our_table.active  # Начинаем работать с файлом
             search_text = sheet_active.cell(row=current_datetime.day + 3, column=1).value
 
-            path_to_file = 'Список проживающих.xlsx'
+            path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
             our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
             sheet_active = our_table.active  # Начинаем работать с файлом
             row_max = sheet_active.max_row  # Получаем количество строк
@@ -165,14 +168,18 @@ def duty_hours_when(received_id):
     :return: список дат дежурства
     """
     import openpyxl
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
+
     word_cell = []
-    sought_name = search_id(received_id, False)
+    sought_name = search_id(received_id)
     if not sought_name:
         return None
     surname = sought_name.split(" ")
     received_id = surname[0] + " " + surname[1][:1]
     for i in 2, 3, 4, 5, 6, 7, 9:
-        path_to_file = f'График дежурств {i} этаж.xlsx'
+        path_to_file = Path(dir_path, "Duty", f'График дежурств {i} этаж.xlsx')
         try:
             our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш график
         except:
@@ -206,8 +213,10 @@ def delete_row(name):
     """
 
     import openpyxl
-
-    path_to_file = 'Список проживающих.xlsx'
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
+    path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
     our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
     sheet_active = our_table.active  # Начинаем работать с файлом
     row_max = sheet_active.max_row  # Получаем количество строк
@@ -217,7 +226,7 @@ def delete_row(name):
     else:
         word_cell = word_cells[0][1:]
         sheet_active.delete_rows(int(word_cell))
-        our_table.save('Список проживающих.xlsx')
+        our_table.save(Path(dir_path, "Duty", "Список проживающих.xlsx"))
 
 
 # delete_row('Михайлов Артем Алексеевич')
@@ -230,8 +239,10 @@ def add_row(name, id_number):
     :param id_number: id проживающего
     """
     import openpyxl
-
-    path_to_file = 'Список проживающих.xlsx'
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
+    path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
     our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
     sheet_active = our_table.active  # Начинаем работать с файлом
     row_max = sheet_active.max_row  # Получаем количество строк
@@ -239,4 +250,4 @@ def add_row(name, id_number):
     second_cell = "B" + str(row_max + 1)  # Ячейка с id
     sheet_active[first_cell].value = name
     sheet_active[second_cell].value = id_number
-    our_table.save('Список проживающих.xlsx')
+    our_table.save(Path(dir_path, "Duty", "Список проживающих.xlsx"))

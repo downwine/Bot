@@ -19,7 +19,7 @@ class VkBot:
     USERNAME = None
     COMMANDS = ["ПРИВЕТ", "НАЧАТЬ", "START", "ПОКА", "УСТАЛ", "ОТПРАВИТЬ ЗАЯВЛЕНИЕ", "ОТПРАВИТЬ ЧЕК",
                 "НА ВНОС", "НА ОТЪЕЗД", "НА ГОСТЯ", "НА ПЕРЕСЕЛЕНИЕ",
-                "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ",
+                "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ?",
                 "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО"]
     city = None
 
@@ -185,8 +185,11 @@ class VkBot:
             self.send_possible_commands(self, user_id)
 
         # Когда я дежурю
-        elif message.upper() == self.COMMANDS[12]:
+        elif message.upper() in self.COMMANDS[12]:
             days = duty_hours_when(user_id)
+            print(days)
+            print(type(days))
+                #send_msg_without_keyboard(user_id, "Вас нет в таблице")
             text = days[0]
             for i in range(len(days) - 1):
                 text = f'{text}, {str(days[i + 1])}'
