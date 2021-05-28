@@ -1,6 +1,7 @@
 import time
 import re
 import vk_api
+import datetime
 from vk_api.longpoll import VkEventType, VkLongPoll
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token
@@ -60,7 +61,33 @@ def check_date(self, text):
     Функция для проверки корректности введения даты
     :param text: то, что надо проверить
     :return: True, если всё правильно
-    """
+    дата 00.00.00"""
+    month = text[3:5]
+    day = text[0:2]
+    year = text[6:8]
+    if month == "02":
+        if day > "29" or day < "01":
+            send_msg_without_keyboard(self.user_id,
+                                      "Дата введена некорректно, повторите ввод")
+            return False
+    elif month == "01" or month == "03" or month == "05" or month == "07" or month == "08" or month == "10" \
+            or month == "12":
+        if day > "31" or day < "01":
+            send_msg_without_keyboard(self.user_id,
+                                      "Дата введена некорректно, повторите ввод")
+            return False
+    elif month == "04" or month == "06" or month == "09" or month == "11":
+        if day > "30" or day < "01":
+            send_msg_without_keyboard(self.user_id,
+                                      "Дата введена некорректно, повторите ввод")
+            return False
+
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    if year != today[2:4]:
+        send_msg_without_keyboard(self.user_id,
+                                  "Дата введена некорректно, повторите ввод")
+        return False
+
     if (re.search(pattern=r'[^0-9\.]', string=text) is not None) or len(text) != 8:
         send_msg_without_keyboard(self.user_id,
                                   "Дата введена некорректно, повторите ввод")
@@ -362,7 +389,6 @@ def fill_relocation_document(self, answers):
 
                         if i == 3 or i == 4:
                             if (event.text.upper() != "ДА") and (event.text.upper() != "НЕТ"):
-
                                 send_msg_without_keyboard(self.user_id,
                                                           "Ввод некорректен, повторите ввод")
                                 break
