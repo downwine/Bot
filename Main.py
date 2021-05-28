@@ -13,7 +13,7 @@ flag = False
 for event in longpoll.listen():
     duty_hours_today(flags)
     if event.type == VkEventType.MESSAGE_NEW:  # Если новое сообщение
-        if search_id(event.user_id) is not None:
+        if search_id(event.user_id, True) is not None:
             if event.to_me:  # Для бота
                 print('New message:')
                 print(f'For me by: {event.user_id}', end='\n')

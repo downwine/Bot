@@ -35,15 +35,20 @@ def search_in_table(row_max, searching_element, sheet_active, column):
     return found_texts
 
 
-def search_id(searching_id):
+def search_id(searching_id, fl):
     """
     Функция для поиска id в таблице
     :param searching_id: id, который необходимо найти
     :return: ФИО, соответствующее данному id
     """
     import openpyxl
-
-    path_to_file = 'Список проживающих.xlsx'
+    import pathlib
+    from pathlib import Path
+    dir_path = pathlib.Path.cwd()
+    if fl is True:
+        path_to_file = Path(dir_path, "Duty", "Список проживающих.xlsx")
+    else:
+        path_to_file = 'Список проживающих.xlsx'
     our_table = openpyxl.load_workbook(path_to_file)  # Грузим наш список
     sheet_active = our_table.active  # Начинаем работать с файлом
     row_max = sheet_active.max_row  # Получаем количество строк
@@ -161,7 +166,7 @@ def duty_hours_when(received_id):
     """
     import openpyxl
     word_cell = []
-    sought_name = search_id(received_id)
+    sought_name = search_id(received_id, False)
     if not sought_name:
         return None
     surname = sought_name.split(" ")
