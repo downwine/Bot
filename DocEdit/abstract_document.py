@@ -148,14 +148,14 @@ class AbstractDocument:
 
         return os.path.join(self.path_to_save, file_path)
 
-    def send_gmail(self, address, body_msg=''):
+    def send_document(self, address, body_msg=''):
         """sends emails to the specified address
         :param body_msg: message with document
         :param address: recipient's address"""
 
         gs = GmailSender()
-        gs.send_gmail(recipient=address, body=body_msg,
-                      file_path=self.last_file_path)
+        gs.send_document(recipient=address, body=body_msg,
+                         file_path=self.last_file_path)
 
 
 if __name__ == '__main__':

@@ -145,7 +145,7 @@ class VkBot:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = TransferDocument()
                     document.write_usual(d)
-                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на отъезд
         elif message.upper() == self.COMMANDS[8]:
@@ -156,7 +156,7 @@ class VkBot:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = AbsenceDocument()
                     document.write_usual(d)
-                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на гостя
         elif message.upper() == self.COMMANDS[9]:
@@ -167,7 +167,7 @@ class VkBot:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = GuestDocument()
                     document.write_usual(d)
-                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Заявление на переселение
         elif message.upper() == self.COMMANDS[10]:
@@ -178,7 +178,7 @@ class VkBot:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = RelocationDocument()
                     document.write_usual(d)
-                    document.send_gmail(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
 
         # Список команд
         elif message.upper() == self.COMMANDS[11]:
