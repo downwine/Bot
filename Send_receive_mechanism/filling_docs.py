@@ -7,9 +7,9 @@ import pathlib
 from pathlib import Path
 from vk_api.longpoll import VkEventType, VkLongPoll
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
-from our_token import token
+from our_token import token, comend_ID
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from Duty.Duty_Hours import search_id
+from Duty.Duty_Hours import search_id, present_month
 
 # Для Long Poll
 vk_session = vk_api.VkApi(token=token)
@@ -149,7 +149,7 @@ def create_dictionary(self):
     return answers
 
 
-def send_cheque(user_id):
+def send_cheque(user_id, FULLNAME):
     send_msg_without_keyboard(user_id, "Я жду чек!")
     parsed = False
     j = 0
@@ -175,8 +175,9 @@ def send_cheque(user_id):
                         cheque = None
 
                     parsed = True
-                    vk_session.method('messages.send', {'user_id': 278002891,
-                                                        'message': "Чек от ....",
+
+                    vk_session.method('messages.send', {'user_id': comend_ID,
+                                                        'message': "Чек от " + FULLNAME,
                                                         'attachment': cheque,
                                                         'random_id': 0})
 
@@ -212,29 +213,11 @@ def fill_current_date(self, dict_keys, answers):
     :param answers: промежуточные ответы
     :return: готовый заполненный словарь
     """
-    send_msg_without_keyboard(self.user_id, "Введите дату заполнения в формате дд.мм.гг")
-    parsed = False
-    j = 0
-    delay = 3
-    for j in range(10):
-        for event in longpoll.check():
-            if event.type == VkEventType.MESSAGE_NEW:
-                if event.to_me:
-                    if not check_date(self, event.text):
-                        break
-                    dict_keys.append("current_date")
-                    answers.append(event.text)
-                    parsed = True
-                    break
-
-        time.sleep(delay)
-        if parsed:
-            break
-
-    if j == 9:
-        send_msg_with_keyboard(self.user_id,
-                               "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
-        return None
+    dict_keys.append("current_date")
+    current_datetime = datetime.datetime.now()
+    temp_month = present_month()
+    temp = str(current_datetime.day) + " " + temp_month + " " + str(current_datetime.year) + " г."
+    answers.append(temp)
 
     dict_of_answers = dict(zip(dict_keys, answers))
 
@@ -403,7 +386,6 @@ def fill_relocation_document(self, answers):
         return None
 
     fields = ["Введите комнату, в которую хотите переселиться",
-              "Введите комнату, из которой хотите переселиться",
               "Введите причину",
               "Есть ли у вас академическая задолженность? Да / Нет",
               "Имеете ли вы дисциплинарные высказывания? Да / Нет",
@@ -420,11 +402,12 @@ def fill_relocation_document(self, answers):
             for event in longpoll.check():
                 if event.type == VkEventType.MESSAGE_NEW:
                     if event.to_me:
-                        if i == 0 or i == 1:
+                        if i == 0:
                             if not check_room_number(self, event.text):
                                 break
+                            answers.append(answers[1])
 
-                        if i == 3 or i == 4:
+                        if i == 2 or i == 3:
                             if (event.text.upper() != "ДА") and (event.text.upper() != "НЕТ"):
                                 send_msg_without_keyboard(self.user_id,
                                                           "Ввод некорректен, повторите ввод")

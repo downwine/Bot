@@ -1,3 +1,5 @@
+import json
+import requests
 from DocEdit.absense_document import AbsenceDocument
 from DocEdit.guest_document import GuestDocument
 from DocEdit.relocation_document import RelocationDocument
@@ -7,6 +9,7 @@ from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer
     send_msg_with_keyboard, taking_str, send_cheque
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Duty.Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
+from our_token import comend_ID
 
 GMAIL_PATH = 'down.wine@yandex.ru'
 TEST_BODY_MSG = 'Test message'
@@ -23,12 +26,14 @@ class VkBot:
                 "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО"]
     city = None
     comend_id = None
+    FULLNAME = None
 
     def __init__(self, user_id):
         """Конструктор"""
         # Из предыдущего файла импортирую две переменные
         self.user_id = user_id
         self.USERNAME = self.get_user_name_from_vk_id(user_id)
+        self.FULLNAME = search_id(self.user_id)
         try:
             self.city = " " + self.get_user_city(user_id)
         except KeyError:
@@ -109,7 +114,7 @@ class VkBot:
         """ Получаем город пользователя"""
         return session_api.users.get(user_id=user_id, fields="city")[0]['city']['title']
 
-    def new_message(self, message, user_id):
+    def new_message(self, message, user_id, comend_ID, event):
         """
         Генерация нового сообщения для отправки
         :param user_id: Идентификатор пользователя
@@ -143,7 +148,7 @@ class VkBot:
 
         # Отправить чек
         elif message.upper() == self.COMMANDS[6]:
-            send_cheque(user_id)
+            send_cheque(user_id, self.FULLNAME)
 
         # Заявление на внос
         elif message.upper() == self.COMMANDS[7]:
