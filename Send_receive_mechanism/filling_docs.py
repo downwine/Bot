@@ -460,7 +460,12 @@ def taking_str(self):
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
                     text = event.text
+                    if not isinstance(text, str):
+                        send_msg_without_keyboard(self.user_id,
+                                                  "Это не строка")
+                        break
                     parsed = True
+                    break
         time.sleep(delay)
         if parsed:
             break
@@ -468,4 +473,5 @@ def taking_str(self):
         send_msg_with_keyboard(self.user_id,
                                "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
         return None
+
     return text

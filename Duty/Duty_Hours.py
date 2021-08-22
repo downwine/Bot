@@ -94,7 +94,7 @@ def duty_hours_today(flags):
     dir_path = pathlib.Path.cwd()
 
     current_datetime = datetime.datetime.now()
-    if current_datetime.hour == 13 and current_datetime.minute == 35:  # Условие отправки сообщения 12:00
+    if current_datetime.hour == 19 and current_datetime.minute == 31:  # Условие отправки сообщения 12:00
         ids_of_cleaners = []
         for i in 2, 3, 4, 5, 6, 7, 9:
             path_to_file = Path(dir_path, "Duty", f'График дежурств {i} этаж.xlsx')

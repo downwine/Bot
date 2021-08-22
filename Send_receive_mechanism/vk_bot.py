@@ -22,6 +22,7 @@ class VkBot:
                 "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ?",
                 "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО"]
     city = None
+    comend_id = None
 
     def __init__(self, user_id):
         """Конструктор"""
@@ -44,6 +45,14 @@ class VkBot:
         keyboard.add_button('На переселение', color=VkKeyboardColor.PRIMARY)
 
         return keyboard.get_keyboard()
+
+    @staticmethod
+    def set_comend_id(user_id, chislo):
+        """Устанавливает ID коменданта"""
+        vk_session.method('messages.send', {'user_id': user_id,
+                                           'message': "Введите ID коменданта (число)",
+                                           'random_id': 0})
+
 
     @staticmethod
     def send_types_of_docs(self, user_id):
