@@ -4,8 +4,8 @@ import requests
 import vk_api
 import datetime
 import pathlib
-from pathlib import Path
 from vk_api.longpoll import VkEventType, VkLongPoll
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token, comend_ID
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -15,6 +15,7 @@ from Duty.Duty_Hours import search_id, present_month
 vk_session = vk_api.VkApi(token=token)
 # Для вызова методов vk_api
 session_api = vk_session.get_api()
+#longpoll = VkBotLongPoll(vk_session, '202823499')
 longpoll = VkLongPoll(vk_session, wait=1)
 
 
@@ -105,9 +106,7 @@ def create_dictionary(self):
     :param self: объект бота
     :return: словарь с двумя ответами
     """
-    send_msg_without_keyboard(self.user_id,
-                              "Перед заполнением Вы можете ознакомиться с шаблонами по ссылке "
-                              "https://vk.com/album-202823499_277877657")
+
     answers = []
     mess = ["Введите номер комнаты, в которой проживаете",
             "Введите контактный телефон"]
@@ -326,7 +325,6 @@ def fill_guest_document(self, answers):
         return None
 
     fields = ["Введите ФИО гостя, которого приглашаете",
-              "Введите номер комнаты, в которую приглашаете",
               "Введите дату, в которую хотите пригласить гостя, в формате дд.мм.гг",
               "Введите время, начиная с которого гость будет присутствовать",
               "Введите время, по которое гость будет присутствовать",
@@ -349,13 +347,14 @@ def fill_guest_document(self, answers):
                             if temp is None:
                                 send_msg_without_keyboard(self.user_id, "ФИО введены некорректно, повторите ввод")
                                 break
+                            answers.append(temp)
+                            answers.append(answers[1])
+                            parsed = True
+                            break
                         if i == 1:
-                            if not check_room_number(self, event.text):
-                                break
-                        if i == 2:
                             if not check_date(self, event.text):
                                 break
-                        if i == 3 or i == 4:
+                        if i == 2 or i == 3:
                             if len(event.text) != 5:
                                 send_msg_without_keyboard(self.user_id,
                                                           "Время введено некорректно, повторите ввод")
@@ -389,7 +388,7 @@ def fill_relocation_document(self, answers):
               "Введите причину",
               "Есть ли у вас академическая задолженность? Да / Нет",
               "Имеете ли вы дисциплинарные высказывания? Да / Нет",
-              "Введите через запятую ФИО соседей, с которыми было согласовано посещение"]
+              "Введите через запятую ФИО соседей, с которыми было согласовано переселение"]
     dict_keys = ["full_name", "room_number", "phone_number", "room_to", "room_from",
                  "reason", "academ_debt", "reprimands", "neighbors"]
 

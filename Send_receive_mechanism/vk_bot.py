@@ -9,7 +9,8 @@ from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer
     send_msg_with_keyboard, taking_str, send_cheque
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Duty.Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
-from our_token import comend_ID
+from our_token import comend_ID, adm_ID
+from Send_receive_mechanism.services import change_comend_ID
 
 GMAIL_PATH = 'down.wine@yandex.ru'
 TEST_BODY_MSG = 'Test message'
@@ -23,9 +24,11 @@ class VkBot:
     COMMANDS = ["ПРИВЕТ", "НАЧАТЬ", "START", "ПОКА", "УСТАЛ", "ОТПРАВИТЬ ЗАЯВЛЕНИЕ", "ОТПРАВИТЬ ЧЕК",
                 "НА ВНОС", "НА ОТЪЕЗД", "НА ГОСТЯ", "НА ПЕРЕСЕЛЕНИЕ",
                 "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ?",
-                "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО"]
+                "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО",
+                "ИЗМЕНИТЬ ID КОМЕНДАНТА", "ИЗМЕНИТЬ ID АДМИНИСТРАТОРА"]
     city = None
-    comend_id = None
+    comend_id = comend_ID
+    adm_id = adm_ID
     FULLNAME = None
 
     def __init__(self, user_id):
@@ -52,16 +55,11 @@ class VkBot:
         return keyboard.get_keyboard()
 
     @staticmethod
-    def set_comend_id(user_id, chislo):
-        """Устанавливает ID коменданта"""
-        vk_session.method('messages.send', {'user_id': user_id,
-                                           'message': "Введите ID коменданта (число)",
-                                           'random_id': 0})
-
-
-    @staticmethod
     def send_types_of_docs(self, user_id):
         """Сообщение с клавиатурой документов"""
+        send_msg_without_keyboard(self.user_id,
+                                  "Перед заполнением Вы можете ознакомиться с шаблонами по ссылке "
+                                  "https://vk.com/album-202823499_277877657")
         vk_session.method('messages.send', {'user_id': user_id,
                                             'message': "Выберите тип заявления:",
                                             'keyboard': self.create_docs_keyboard(),
@@ -73,17 +71,15 @@ class VkBot:
         keyboard = VkKeyboard(inline=True)
         if not (self.user_id == 157833436):
             keyboard.add_button('Отправить заявление', color=VkKeyboardColor.PRIMARY)
-            keyboard.add_line()
             keyboard.add_button('Отправить чек', color=VkKeyboardColor.PRIMARY)
             keyboard.add_line()
             keyboard.add_button('Когда я дежурю?', color=VkKeyboardColor.PRIMARY)
         else:
             keyboard.add_button('Добавить проживающего', color=VkKeyboardColor.PRIMARY)
-            keyboard.add_line()
             keyboard.add_button('Удалить проживающего', color=VkKeyboardColor.PRIMARY)
             keyboard.add_line()
 
-        if self.user_id == 192062697 or self.user_id == 278002891:
+        if self.user_id == self.adm_id or self.user_id == 278002891:
             keyboard.add_line()
             keyboard.add_button('Добавить проживающего', color=VkKeyboardColor.PRIMARY)
             keyboard.add_line()
@@ -91,6 +87,9 @@ class VkBot:
             keyboard.add_line()
             keyboard.add_button('Узнать ФИО по id', color=VkKeyboardColor.PRIMARY)
             keyboard.add_button('Узнать id по ФИО', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_line()
+            keyboard.add_button('Изменить id коменданта', color=VkKeyboardColor.PRIMARY)
+            keyboard.add_button('Изменить id администратора', color=VkKeyboardColor.PRIMARY)
         elif self.user_id == 157833436:
             keyboard.add_button('Узнать ФИО по id', color=VkKeyboardColor.SECONDARY)
             keyboard.add_button('Узнать id по ФИО', color=VkKeyboardColor.SECONDARY)
@@ -114,7 +113,19 @@ class VkBot:
         """ Получаем город пользователя"""
         return session_api.users.get(user_id=user_id, fields="city")[0]['city']['title']
 
-    def new_message(self, message, user_id, comend_ID, event):
+    @staticmethod
+    def send_doc_to_user(doc, user_id, d):
+        a = doc.write_usual(d)
+        result = json.loads(
+            requests.post(session_api.docs.getMessagesUploadServer(type='doc', peer_id=user_id)['upload_url'],
+                          files={'file': open(a, 'rb')}).text)
+        jsonAnswer = session_api.docs.save(file=result['file'], title=doc.title, tags=[])
+
+        vk_session.method('messages.send', {'user_id': comend_ID,
+                                            'attachment': f"doc{jsonAnswer['doc']['owner_id']}_{jsonAnswer['doc']['id']}",
+                                            'random_id': 0})
+
+    def new_message(self, message, user_id, comend_ID):
         """
         Генерация нового сообщения для отправки
         :param user_id: Идентификатор пользователя
@@ -158,8 +169,9 @@ class VkBot:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = TransferDocument()
-                    document.write_usual(d)
-                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+
+                    self.send_doc_to_user(document, self.user_id, d)
+
 
         # Заявление на отъезд
         elif message.upper() == self.COMMANDS[8]:
@@ -169,8 +181,8 @@ class VkBot:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = AbsenceDocument()
-                    document.write_usual(d)
-                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+
+                    self.send_doc_to_user(document, self.user_id, d)
 
         # Заявление на гостя
         elif message.upper() == self.COMMANDS[9]:
@@ -180,8 +192,8 @@ class VkBot:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = GuestDocument()
-                    document.write_usual(d)
-                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+
+                    self.send_doc_to_user(document, self.user_id, d)
 
         # Заявление на переселение
         elif message.upper() == self.COMMANDS[10]:
@@ -191,8 +203,8 @@ class VkBot:
                 if len(d) > 3:
                     send_msg_with_keyboard(user_id, "Спасибо за заполнение заявления!")
                     document = RelocationDocument()
-                    document.write_usual(d)
-                    document.send_document(address=GMAIL_PATH, body_msg=TEST_BODY_MSG)
+
+                    self.send_doc_to_user(document, self.user_id, d)
 
         # Список команд
         elif message.upper() == self.COMMANDS[11]:
@@ -203,7 +215,7 @@ class VkBot:
             days = duty_hours_when(user_id)
             print(days)
             print(type(days))
-                #send_msg_without_keyboard(user_id, "Вас нет в таблице")
+            # send_msg_without_keyboard(user_id, "Вас нет в таблице")
             text = days[0]
             for i in range(len(days) - 1):
                 text = f'{text}, {str(days[i + 1])}'
@@ -248,6 +260,12 @@ class VkBot:
                 send_msg_with_keyboard(user_id, f'id: {fio} не найден в списке проживающих')
             else:
                 send_msg_with_keyboard(user_id, f'{fio} имеет id {id_for_searching}')
+
+        # Сменить ID коменданта
+        elif message.upper() == self.COMMANDS[17]:
+            if self.user_id == self.adm_id:
+                if change_comend_ID(self) is not None:
+                    send_msg_with_keyboard(self.user_id, "ID коменданта был успешно изменён")
 
         else:
             send_msg_with_keyboard(user_id, "Не понимаю, о чем вы...")

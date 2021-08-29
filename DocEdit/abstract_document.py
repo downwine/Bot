@@ -3,8 +3,6 @@ from docxtpl import RichText
 import datetime
 import os
 
-from Gmail.GmailSender import GmailSender
-
 
 class AbstractDocument:
     def __init__(self, path_to_sample, path_to_save):
@@ -15,6 +13,7 @@ class AbstractDocument:
         self.path_to_sample = path_to_sample
         self.path_to_save = path_to_save
         self.last_file_path = None
+        self.title = None
         self.document = DocxTemplate(self.path_to_sample)  # reading document with __init__ path param
 
         if self.__docname__ is None:
@@ -139,23 +138,16 @@ class AbstractDocument:
         :param: Full Name
         :return: full name -> path_to_save/ApplicationType_Full_Name.docx
         """
-        date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+        date = datetime.datetime.now().strftime("%d.%m.%Y_%H:%M")
 
         full_name = '_'.join(full_name.split())
         application_type = self.__name__()
 
         file_path = application_type + "_" + date + "_" + full_name + '.docx'
+        self.title = file_path
 
         return os.path.join(self.path_to_save, file_path)
 
-    def send_document(self, address, body_msg=''):
-        """sends emails to the specified address
-        :param body_msg: message with document
-        :param address: recipient's address"""
-
-        gs = GmailSender()
-        gs.send_document(recipient=address, body=body_msg,
-                         file_path=self.last_file_path)
 
 
 if __name__ == '__main__':
