@@ -2,7 +2,6 @@ from vk_api.longpoll import VkEventType
 from Send_receive_mechanism.vk_bot import VkBot
 from Send_receive_mechanism.filling_docs import longpoll, send_msg_without_keyboard
 from Duty.Duty_Hours import duty_hours_today, search_id
-from our_token import comend_ID
 
 
 # Основной цикл
@@ -20,7 +19,7 @@ for event in longpoll.listen():
                 print('New message:')
                 print(f'For me by: {event.user_id}', end='\n')
                 bot = VkBot(event.user_id)  # Создаём объект бота
-                bot.new_message(event.text, event.user_id, comend_ID, event)  # Отправляем сообщение
+                bot.new_message(event.text, event.user_id)  # Отправляем сообщение
                 print('Text: ', event.text)
         else:
             bot = VkBot(event.user_id)

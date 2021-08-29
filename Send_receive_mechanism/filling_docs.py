@@ -5,7 +5,6 @@ import vk_api
 import datetime
 import pathlib
 from vk_api.longpoll import VkEventType, VkLongPoll
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from DocEdit.regular_expressions import reformat_mobile, full_name_processing
 from our_token import token, comend_ID
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -15,7 +14,7 @@ from Duty.Duty_Hours import search_id, present_month
 vk_session = vk_api.VkApi(token=token)
 # Для вызова методов vk_api
 session_api = vk_session.get_api()
-#longpoll = VkBotLongPoll(vk_session, '202823499')
+
 longpoll = VkLongPoll(vk_session, wait=1)
 
 
@@ -193,19 +192,12 @@ def send_cheque(user_id, FULLNAME):
     dir_path = pathlib.Path.cwd()
     print(dir_path)
     k = "name.jpg"
-    # path_to_file = str(Path(dir_path, "Cheques", k))
-    # print(path_to_file)
-    # for i in range(len(path_to_file)):
-    #     if path_to_file[i] != "\\":
-    #         continue
-    #     path_to_file = path_to_file[:i] + "/" + path_to_file[i+1:]
-    # print(path_to_file)
     out = open("cheque.jpg", "wb")
     out.write(ph.content)
     out.close()
 
 
-def fill_current_date(self, dict_keys, answers):
+def fill_current_date(dict_keys, answers):
     """
     Функция для довавления даты заполнения заявления и завершения формирования словаря
     :param dict_keys: промежуточные ключи
@@ -269,7 +261,7 @@ def fill_transfer_document(self, answers):
                                    "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
             return None
 
-    return fill_current_date(self, dict_keys, answers)
+    return fill_current_date(dict_keys, answers)
 
 
 def fill_absence_document(self, answers):
@@ -312,7 +304,7 @@ def fill_absence_document(self, answers):
                                    "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
             return None
 
-    return fill_current_date(self, dict_keys, answers)
+    return fill_current_date(dict_keys, answers)
 
 
 def fill_guest_document(self, answers):
@@ -372,7 +364,7 @@ def fill_guest_document(self, answers):
                                    "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
             return None
 
-    return fill_current_date(self, dict_keys, answers)
+    return fill_current_date(dict_keys, answers)
 
 
 def fill_relocation_document(self, answers):
@@ -424,7 +416,7 @@ def fill_relocation_document(self, answers):
                                    "Вы отвечали слишком долго, я не дождался, повторите запрос ещё раз")
             return None
 
-    return fill_current_date(self, dict_keys, answers)
+    return fill_current_date(dict_keys, answers)
 
 
 def taking_str(self):

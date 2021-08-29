@@ -115,6 +115,12 @@ class VkBot:
 
     @staticmethod
     def send_doc_to_user(doc, user_id, d):
+        """
+        Заполняет документ, загружает на сервер и отправляет коментанту вконтакте
+        :param doc: объект документа
+        :param user_id: текущий пользователь
+        :param d: словарь с ответами пользователя
+        """
         a = doc.write_usual(d)
         result = json.loads(
             requests.post(session_api.docs.getMessagesUploadServer(type='doc', peer_id=user_id)['upload_url'],
@@ -125,7 +131,7 @@ class VkBot:
                                             'attachment': f"doc{jsonAnswer['doc']['owner_id']}_{jsonAnswer['doc']['id']}",
                                             'random_id': 0})
 
-    def new_message(self, message, user_id, comend_ID):
+    def new_message(self, message, user_id):
         """
         Генерация нового сообщения для отправки
         :param user_id: Идентификатор пользователя
@@ -171,7 +177,6 @@ class VkBot:
                     document = TransferDocument()
 
                     self.send_doc_to_user(document, self.user_id, d)
-
 
         # Заявление на отъезд
         elif message.upper() == self.COMMANDS[8]:
@@ -264,7 +269,7 @@ class VkBot:
         # Сменить ID коменданта
         elif message.upper() == self.COMMANDS[17]:
             if self.user_id == self.adm_id:
-                if change_comend_ID(self) is not None:
+                if change_comend_ID(self):
                     send_msg_with_keyboard(self.user_id, "ID коменданта был успешно изменён")
 
         else:
