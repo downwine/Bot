@@ -6,14 +6,11 @@ from DocEdit.relocation_document import RelocationDocument
 from DocEdit.transfer_document import TransferDocument
 from Send_receive_mechanism.filling_docs import create_dictionary, fill_transfer_document, fill_absence_document, \
     fill_guest_document, fill_relocation_document, send_msg_without_keyboard, vk_session, session_api, \
-    send_msg_with_keyboard, taking_str, send_cheque
+    send_msg_with_keyboard, send_cheque
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from Duty.Duty_Hours import duty_hours_when, present_month, delete_row, add_row, search_name, search_id
 from our_token import comend_ID, adm_ID
-from Send_receive_mechanism.services import change_comend_ID
-
-GMAIL_PATH = 'down.wine@yandex.ru'
-TEST_BODY_MSG = 'Test message'
+from Send_receive_mechanism.services import change_comend_id, taking_str, taking_int, change_admin_id
 
 
 class VkBot:
@@ -228,18 +225,18 @@ class VkBot:
 
         # Добавить человека в таблицу
         elif message.upper() == self.COMMANDS[13]:
-            if user_id == 157833436 or user_id == 192062697 or user_id == 278002891:
+            if user_id == self.comend_id or user_id == self.comend_id:
                 send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
                 fio = taking_str(self)
                 send_msg_with_keyboard(user_id, 'Введите id проживающего')
-                id_for_adding = taking_str(self)
+                id_for_adding = taking_int(self)
                 add_row(fio, id_for_adding)
                 send_msg_with_keyboard(user_id, f'Вы добавили в список проживающих {fio},'
                                                 f' id которого {id_for_adding}')
 
         # Удалить человека из таблицы
         elif message.upper() == self.COMMANDS[14]:
-            if user_id == 157833436 or user_id == 192062697 or user_id == 278002891:
+            if user_id == self.comend_id or user_id == adm_ID:
                 send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
                 fio = taking_str(self)
                 delete_row(fio)
@@ -247,9 +244,9 @@ class VkBot:
 
         # Узнать ФИО человека по его id
         elif message.upper() == self.COMMANDS[15]:
-            if user_id == 192062697 or user_id == 278002891:
+            if user_id == self.comend_id or user_id == self.adm_id:
                 send_msg_with_keyboard(user_id, 'Введите id проживающего')
-                id_for_searching = taking_str(self)
+                id_for_searching = taking_int(self)
                 fio = search_id(id_for_searching)
                 if fio is None:
                     send_msg_with_keyboard(user_id, f'id: {id_for_searching} не найдено в списке проживающих')
@@ -258,19 +255,26 @@ class VkBot:
 
         # Узнать id человека по его ФИО
         elif message.upper() == self.COMMANDS[16]:
-            send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
-            fio = taking_str(self)
-            id_for_searching = search_name(fio)
-            if id_for_searching is None:
-                send_msg_with_keyboard(user_id, f'id: {fio} не найден в списке проживающих')
-            else:
-                send_msg_with_keyboard(user_id, f'{fio} имеет id {id_for_searching}')
+            if user_id == self.comend_id or user_id == self.adm_id:
+                send_msg_with_keyboard(user_id, 'Введите ФИО проживающего')
+                fio = taking_str(self)
+                id_for_searching = search_name(fio)
+                if id_for_searching is None:
+                    send_msg_with_keyboard(user_id, f'id: {fio} не найден в списке проживающих')
+                else:
+                    send_msg_with_keyboard(user_id, f'{fio} имеет id {id_for_searching}')
 
         # Сменить ID коменданта
         elif message.upper() == self.COMMANDS[17]:
-            if self.user_id == self.adm_id:
-                if change_comend_ID(self):
+            if self.user_id == self.adm_id or self.user_id == self.comend_id:
+                if change_comend_id(self):
                     send_msg_with_keyboard(self.user_id, "ID коменданта был успешно изменён")
+
+        # Сменить ID администратора
+        elif message.upper() == self.COMMANDS[18]:
+            if self.user_id == self.adm_id:
+                if change_admin_id(self):
+                    send_msg_with_keyboard(self.user_id, "ID администратора был успешно изменён")
 
         else:
             send_msg_with_keyboard(user_id, "Не понимаю, о чем вы...")
