@@ -24,5 +24,5 @@ for event in longpoll.listen():
         else:
             bot = VkBot(event.user_id)
             if not flag:
-                send_msg_without_keyboard(event.user_id, "Ты кто такой?")
+                send_msg_without_keyboard(event.user_id, "Вас пока нет в базе, обратитесь к коменданту")
                 flag = True

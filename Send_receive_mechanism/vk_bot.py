@@ -22,7 +22,7 @@ class VkBot:
                 "НА ВНОС", "НА ОТЪЕЗД", "НА ГОСТЯ", "НА ПЕРЕСЕЛЕНИЕ",
                 "СПИСОК КОМАНД", "КОГДА Я ДЕЖУРЮ?",
                 "ДОБАВИТЬ ПРОЖИВАЮЩЕГО", "УДАЛИТЬ ПРОЖИВАЮЩЕГО", "УЗНАТЬ ФИО ПО ID", "УЗНАТЬ ID ПО ФИО",
-                "ИЗМЕНИТЬ ID КОМЕНДАНТА", "ИЗМЕНИТЬ ID АДМИНИСТРАТОРА"]
+                "ИЗМЕНИТЬ ID КОМЕНДАНТА", "ИЗМЕНИТЬ ID АДМИНИСТРАТОРА", "ДОБАВИТЬ ID АДМИНИСТРАТОРА"]
     city = None
     comend_id = comend_ID
     adm_id = adm_ID
@@ -163,6 +163,7 @@ class VkBot:
         # Отправить чек
         elif message.upper() == self.COMMANDS[6]:
             send_cheque(user_id, self.FULLNAME)
+            send_msg_with_keyboard(user_id, "Спасибо, ваш чек был отправлен коменданту!")
 
         # Заявление на внос
         elif message.upper() == self.COMMANDS[7]:
@@ -215,8 +216,8 @@ class VkBot:
         # Когда я дежурю
         elif message.upper() in self.COMMANDS[12]:
             days = duty_hours_when(user_id)
-            print(days)
-            print(type(days))
+            #print(days)
+            #print(type(days)) # обработать когда нет в дежурстве а то он вылетает
             # send_msg_without_keyboard(user_id, "Вас нет в таблице")
             text = days[0]
             for i in range(len(days) - 1):
@@ -275,6 +276,13 @@ class VkBot:
             if self.user_id == self.adm_id:
                 if change_admin_id(self):
                     send_msg_with_keyboard(self.user_id, "ID администратора был успешно изменён")
+
+        # Добавить ещё одного администратора
+        # elif message.upper() == self.COMMANDS[19]:
+        #     if self.user_id == self.adm_id:
+        # добавлять по строчке в файл, считывать до конца файла если строчка начинается с 'adm_id' и заполнять тут
+        # массив, а потом проходиться каждый раз при проверке на админа по элементам массива, совпадает ли id
+        # с любым из элементов
 
         else:
             send_msg_with_keyboard(user_id, "Не понимаю, о чем вы...")

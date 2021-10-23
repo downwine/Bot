@@ -51,7 +51,10 @@ def check_room_number(self, text):
     :param text: то, что надо проверить
     :return: True, если всё правильно
     """
-    if not text.isdigit() or 201 > int(text) or int(text) > 918:
+    if not text.isdigit() or not ((201 <= int(text) <= 218)
+                                  or (301 <= int(text) <= 318) or (401 <= int(text) <= 418)
+                                  or (501 <= int(text) <= 518) or (601 <= int(text) <= 618)
+                                  or (701 <= int(text) <= 718) or (901 <= int(text) <= 918)):
         send_msg_without_keyboard(self.user_id,
                                   "Номер комнаты введён некорректно, повторите ввод")
         return False
@@ -148,7 +151,7 @@ def create_dictionary(self):
 
 
 def send_cheque(user_id, FULLNAME):
-    send_msg_without_keyboard(user_id, "Я жду чек!")
+    send_msg_without_keyboard(user_id, "Я жду чек! Прикрепите фотографию в формате .jpeg")
     parsed = False
     j = 0
     delay = 3
@@ -167,7 +170,7 @@ def send_cheque(user_id, FULLNAME):
                         cheque = "photo{}_{}_{}".format(photo["owner_id"], photo["id"], photo["access_key"])
                         index = len(photo["sizes"])
                         print("index = ", index)
-                        url = photo["sizes"][index-1]["url"]
+                        url = photo["sizes"][index - 1]["url"]
 
                     except:
                         cheque = None

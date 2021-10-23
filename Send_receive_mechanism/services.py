@@ -66,7 +66,7 @@ def taking_str(self):
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
                     text = event.text
-                    if not any(map(str.isdigit, text)):
+                    if any(map(str.isdigit, text)):
                         send_msg_without_keyboard(self.user_id,
                                                   "Не вводите цифры, попробуйте ещё раз")
                         break
@@ -97,7 +97,7 @@ def taking_int(self):
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
                     chislo = event.text
-                    if any(map(str.isdigit, chislo)):
+                    if not any(map(str.isdigit, chislo)):
                         send_msg_without_keyboard(self.user_id,
                                                   "Вводите только цифры, попробуйте ещё раз")
                         break
